@@ -67,6 +67,9 @@ public class ObjectLoader {
         String modelsFolderEnvVar = System.getenv("MODELS_FOLDER");
         if (modelsFolderEnvVar != null) {
             models.addAll(loadObjectsFromDir(new File(modelsFolderEnvVar)));
+        }else {
+            modelsFolderEnvVar = "leshan-core/src/main/resources";
+            models.addAll(loadObjectsFromDir(new File(modelsFolderEnvVar)));
         }
 
         return models;
@@ -139,6 +142,9 @@ public class ObjectLoader {
 
                 } else if (file.getName().endsWith(".json")) {
                     // from JSON file
+                    if (file.getName().equals("oma-objects-spec.json")) {
+                        continue;
+                    }
                     LOG.debug("Loading object models from JSON file {}", file.getAbsolutePath());
                     try (FileInputStream input = new FileInputStream(file)) {
                         models.addAll(loadJsonStream(input));
