@@ -25,10 +25,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -132,7 +129,25 @@ public class SecurityRegistryImpl implements SecurityRegistry {
     public SecurityInfo getByEndpoint(String endpoint) {
         readLock.lock();
         try {
-            return securityByEp.get(endpoint);
+            // Alinket BT0002288
+            // use pattern rather than exact string.
+            // better to extend this class and override this API.
+            // But child can't visit securityByEp unless private->protected
+            Iterator<Map.Entry<String, SecurityInfo>>
+                    iter = securityByEp.entrySet().iterator();
+
+            while( iter.hasNext() ) {
+                Map.Entry<String, SecurityInfo> en = iter.next();
+
+            /* Allows multiple clients sharing one same
+             * security configuration.
+             */
+                if( endpoint.matches(en.getKey()) ) {
+                    return en.getValue();
+                }
+            }
+            return null;
+            //return securityByEp.get(endpoint);
         } finally {
             readLock.unlock();
         }
