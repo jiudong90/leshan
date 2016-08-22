@@ -68,7 +68,7 @@ public class ObjectLoader {
         if (modelsFolderEnvVar != null) {
             models.addAll(loadObjectsFromDir(new File(modelsFolderEnvVar)));
         }else {
-            modelsFolderEnvVar = "leshan-core/src/main/resources";
+            modelsFolderEnvVar = "leshan/leshan-core/src/main/resources";
             models.addAll(loadObjectsFromDir(new File(modelsFolderEnvVar)));
         }
 
