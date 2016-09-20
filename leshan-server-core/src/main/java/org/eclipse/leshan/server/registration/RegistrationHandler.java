@@ -17,7 +17,10 @@ package org.eclipse.leshan.server.registration;
 
 import java.net.InetSocketAddress;
 import java.util.Date;
-
+//zyj add begin
+import java.util.Map;
+import org.eclipse.leshan.LinkObject;
+//zyj add end
 import org.eclipse.leshan.core.request.DeregisterRequest;
 import org.eclipse.leshan.core.request.Identity;
 import org.eclipse.leshan.core.request.RegisterRequest;
@@ -45,7 +48,17 @@ public class RegistrationHandler {
 
     private SecurityStore securityStore;
     private ClientRegistry clientRegistry;
+    //zyj add begin
+    private Map<String, String> rulebyObjectid;
+    private int maxClients;
 
+    public RegistrationHandler(ClientRegistry clientRegistry, SecurityStore securityStore, Map<String, String> rulebyObjectid) {
+        this.clientRegistry = clientRegistry;
+        this.securityStore = securityStore;
+        this.rulebyObjectid = rulebyObjectid;
+        this.maxClients = 1000;//default 1000
+    }
+    //zyj add end
     public RegistrationHandler(ClientRegistry clientRegistry, SecurityStore securityStore) {
         this.clientRegistry = clientRegistry;
         this.securityStore = securityStore;
@@ -57,11 +70,24 @@ public class RegistrationHandler {
             return RegisterResponse.badRequest(null);
         }
 
+        //zyj add begin
+        //If the client is reach the max number, refuse the new client to register
+        int num = clientRegistry.numberOfRegistClient();
+        LOG.info("registered client number:{}", num);
+        if(num >= this.maxClients){
+            LOG.info("reach ve max number, refuse client: {} to register", registerRequest.getEndpointName());
+            return RegisterResponse.forbidden(null);
+        }
+        //zyj add end
         // We must check if the client is using the right identity.
         if (!isAuthorized(registerRequest.getEndpointName(), sender)) {
             return RegisterResponse.forbidden(null);
         }
-
+        //zyj add begin
+        if (!isAlinketAuthorized(registerRequest.getObjectLinks(),registerRequest.getEndpointName())) {
+            return RegisterResponse.forbidden(null);
+        }
+        //zyj add end
         Client.Builder builder = new Client.Builder(RegistrationHandler.createRegistrationId(),
                 registerRequest.getEndpointName(), sender.getPeerAddress().getAddress(), sender.getPeerAddress()
                         .getPort(), serverEndpoint);
@@ -146,5 +172,30 @@ public class RegistrationHandler {
         SecurityInfo expectedSecurityInfo = securityStore.getByEndpoint(lwM2mEndPointName);
         return SecurityCheck.checkSecurityInfo(lwM2mEndPointName, clientIdentity, expectedSecurityInfo);
     }
+//zyj add begin
+    private boolean isAlinketAuthorized(LinkObject[] objectLinks, String lwM2mEndPointName) {
+        boolean findandmatch = false;
+        for (LinkObject link : objectLinks) {
+            if (link == null) {
+                continue;
+            }
+            for (String key : rulebyObjectid.keySet()) {
+                if (link.toString().contains(key)) {
+                    if (lwM2mEndPointName.matches(rulebyObjectid.get(key))) {
+                        LOG.info("client:{} objectid:{} matches the pattern", lwM2mEndPointName, key);
+                        findandmatch = true;
+                    } else
+                        LOG.info("client:{} objectid:{} not matches the pattern", lwM2mEndPointName, key);
+                }
+            }
+        }
+        LOG.info("isAlinketAuthorized return:{} client:{} ", findandmatch, lwM2mEndPointName);
+        return findandmatch;
+    }
 
+    public void setAlinketRule(Map<String, String> rulebyObjectid, int maxclients) {
+        this.rulebyObjectid = rulebyObjectid;
+        this.maxClients = maxclients;
+    }
+//zyj add end
 }

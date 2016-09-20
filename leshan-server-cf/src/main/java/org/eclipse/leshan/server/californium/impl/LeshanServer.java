@@ -23,7 +23,10 @@ import java.security.cert.X509Certificate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
+//zyj add begin
+import java.util.HashMap;
+import java.util.Map;
+//zyj add end
 import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.CoapServer;
 import org.eclipse.californium.core.coap.CoAP.ResponseCode;
@@ -97,6 +100,10 @@ public class LeshanServer implements LwM2mServer {
     private final LwM2mNodeEncoder encoder;
 
     private final LwM2mNodeDecoder decoder;
+
+    //zyj add begin
+    private final RegistrationHandler regHandler;
+    //zyj add end
 
     /**
      * Initialize a server which will bind to the specified address and port.
@@ -190,8 +197,17 @@ public class LeshanServer implements LwM2mServer {
         coapServer.addEndpoint(secureEndpoint);
 
         // define /rd resource
-        final RegisterResource rdResource = new RegisterResource(
-                new RegistrationHandler(this.clientRegistry, this.securityRegistry));
+        //zyj add begin
+        Map<String, String> rule = new HashMap<>();
+        rule.put(String.valueOf(26001), "[A-Z]+-[a-zA-Z]+-[0-9]+");//set default rule before iotconnector ready
+        rule.put(String.valueOf(26002), "[a-zA-Z]+");
+        regHandler = new RegistrationHandler(this.clientRegistry, this.securityRegistry, rule);
+
+        final RegisterResource rdResource = new RegisterResource(regHandler);
+
+        //final RegisterResource rdResource = new RegisterResource(
+        //        new RegistrationHandler(this.clientRegistry, this.securityRegistry));
+        //zyj add end
         coapServer.add(rdResource);
 
         // create sender
@@ -296,6 +312,13 @@ public class LeshanServer implements LwM2mServer {
             final ResponseCallback<T> responseCallback, final ErrorCallback errorCallback) {
         requestSender.send(destination, request, responseCallback, errorCallback);
     }
+
+    //zyj add begin
+    @Override
+    public void setRegRule(Map<String, String> rule, int maxclients) {
+        regHandler.setAlinketRule(rule, maxclients);
+    }
+    //zyj add end
 
     /**
      * @return the underlying {@link CoapServer}

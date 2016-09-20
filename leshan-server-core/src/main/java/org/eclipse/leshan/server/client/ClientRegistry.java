@@ -86,4 +86,13 @@ public interface ClientRegistry {
      * @return the matching client or <code>null</code> if not found
      */
     Client findByRegistrationId(String id);
+
+    //zyj add begin
+    /**
+     * Get registered client's number.
+     *
+     * @return number of registered clients
+     */
+    int numberOfRegistClient();
+    //zyj add end
 }
