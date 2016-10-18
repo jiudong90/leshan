@@ -18,6 +18,7 @@ package org.eclipse.leshan.server.model;
 import java.util.Collection;
 
 import org.eclipse.leshan.core.model.LwM2mModel;
+import org.eclipse.leshan.core.model.ObjectLoader;
 import org.eclipse.leshan.core.model.ObjectModel;
 import org.eclipse.leshan.server.client.Client;
 
@@ -25,7 +26,7 @@ import org.eclipse.leshan.server.client.Client;
  * A LwM2mModelProvider which uses only one model for all registered clients.
  */
 public class StaticModelProvider implements LwM2mModelProvider {
-    private final LwM2mModel model;
+    private LwM2mModel model;//delete final zyj modify
 
     public StaticModelProvider(Collection<ObjectModel> objects) {
         this(new LwM2mModel(objects));
@@ -40,4 +41,11 @@ public class StaticModelProvider implements LwM2mModelProvider {
         // same model for all clients
         return model;
     }
+
+    //zyj add
+    @Override
+    public void reloadModel() {
+        this.model = new LwM2mModel(ObjectLoader.loadDefault());
+    }
+    //zyj end
 }
