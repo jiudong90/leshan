@@ -351,6 +351,10 @@ public class LwM2mResponseBuilder<T extends LwM2mResponse> implements DownlinkRe
         try {
             content = decoder.decode(coapResponse.getPayload(),
                     ContentFormat.fromCode(coapResponse.getOptions().getContentFormat()), path, model);
+            //for ALX830A device client only support text
+//            LOG.debug("content format: {}", ContentFormat.fromCode(coapResponse.getOptions().getContentFormat()));
+//            LOG.debug("coap content format: {}",coapResponse.getOptions().getContentFormat());
+//            content = decoder.decode(coapResponse.getPayload(), ContentFormat.TEXT, path, model);
         } catch (final InvalidValueException e) {
             final String msg = String.format("[%s] (%s:%s)", e.getMessage(), e.getPath().toString(),
                     coapResponse.getCode().toString());
@@ -367,7 +371,6 @@ public class LwM2mResponseBuilder<T extends LwM2mResponse> implements DownlinkRe
     /**
      * Throws a generic {@link ResourceAccessException} indicating that the client returned an unexpected response code.
      *
-     * @param request
      * @param coapRequest
      * @param coapResponse
      */

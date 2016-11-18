@@ -234,6 +234,11 @@ public class QueuedRequestSender implements LwM2mRequestSender, Stoppable {
         }
 
         @Override
+        public void newValue(Observation observation, byte[] payload) {
+            //not used here
+        }
+
+        @Override
         public void cancelled(Observation observation) {
             // not used here
         }

@@ -34,4 +34,5 @@ public interface ObservationRegistryListener {
      * @param timestampedValues the list of time-stamped value (could be null)
      */
     void newValue(Observation observation, LwM2mNode mostRecentValue, List<TimestampedLwM2mNode> timestampedValues);
+    void newValue(Observation observation, byte[] payload);
 }

@@ -204,10 +204,25 @@ public class CaliforniumObservationRegistryImpl
                 // get model for this client
                 LwM2mModel model = modelProvider.getObjectModel(client);
 
-                // decode response
-                List<TimestampedLwM2mNode> content = decoder.decodeTimestampedData(coapResponse.getPayload(),
-                        ContentFormat.fromCode(coapResponse.getOptions().getContentFormat()), observation.getPath(),
-                        model);
+                LOG.debug("coapResponse {}", coapResponse.toString());
+                LOG.debug("coap options {}", coapResponse.getOptions());
+                LOG.debug("coap content fromat {}", coapResponse.getOptions().getContentFormat());
+                LOG.debug("coap payload {}", coapResponse.getPayload());
+
+                List<TimestampedLwM2mNode> content = null;
+
+                if(coapResponse.getOptions().getContentFormat() != -1) {
+
+                    // decode response
+                    content = decoder.decodeTimestampedData(coapResponse.getPayload(),
+                            ContentFormat.fromCode(coapResponse.getOptions().getContentFormat()), observation.getPath(),
+                            model);
+                } else {
+
+                    //for ALK830A device client
+                    content = decoder.decodeTimestampedData(coapResponse.getPayload(),
+                        ContentFormat.TEXT, observation.getPath(), model);
+                }
 
                 // notify all listeners
                 for (ObservationRegistryListener listener : listeners) {
@@ -215,8 +230,10 @@ public class CaliforniumObservationRegistryImpl
                         listener.newValue(observation, null, content);
                     } else if (content.size() == 1 && content.get(0).isTimespamped()) {
                         listener.newValue(observation, content.get(0).getNode(), null);
+//                        listener.newValue(observation, coapResponse.getPayload());
                     } else {
                         listener.newValue(observation, content.get(0).getNode(), content);
+//                        listener.newValue(observation, coapResponse.getPayload());
                     }
                 }
             } catch (InvalidValueException e) {
