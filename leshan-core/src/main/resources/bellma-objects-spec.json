@@ -1,0 +1,308 @@
+[
+  {
+    "id": 25979,
+    "name": "Bellma Toilet Control & Status",
+    "instancetype": "single",
+    "mandatory": false,
+    "description": "This proprietary Object defines resources to control and describe the status of Bellma toilet devices.",
+    "resourcedefs": [
+      {
+        "id": 0,
+        "name": "Factory Reset",
+        "operations": "E",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "opaque",
+        "range": "",
+        "units": "",
+        "description": "Reset seat settings to factory defaults."
+      },
+      {
+        "id": 1,
+        "name": "Cancel Action",
+        "operations": "E",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "opaque",
+        "range": "",
+        "units": "",
+        "description": "Interrupt seat action and put it in idle mode."
+      },
+      {
+        "id": 2,
+        "name": "Power",
+        "operations": "RW",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "boolean",
+        "range": "",
+        "units": "",
+        "description": "Indicates whether the seat is on/off."
+      },
+      {
+        "id": 3,
+        "name": "Energy Saving Mode",
+        "operations": "RW",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "boolean",
+        "range": "",
+        "units": "",
+        "description": "Energy saving mode on/off."
+      },
+      {
+        "id": 4,
+        "name": "Night Light",
+        "operations": "RW",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "boolean",
+        "range": "",
+        "units": "",
+        "description": "Night light switched on/off."
+      },
+      {
+        "id": 5,
+        "name": "Cover Autoflip Mode",
+        "operations": "RW",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "boolean",
+        "range": "",
+        "units": "",
+        "description": "Enable or disable the auto-flipping of the toilet cover."
+      },
+      {
+        "id": 6,
+        "name": "Seat Autoflip Mode",
+        "operations": "RW",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "boolean",
+        "range": "",
+        "units": "",
+        "description": "Enable or disable the auto-flipping of the toilet seat."
+      },
+      {
+        "id": 7,
+        "name": "Seat or Cover Position",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "boolean",
+        "range": "",
+        "units": "",
+        "description": "Seat / cover positions."
+      },
+      {
+        "id": 8,
+        "name": "Seat Temperature Setting",
+        "operations": "RW",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "0-8",
+        "units": "",
+        "description": "Seat temperature settings (0: room temperature)."
+      },
+      {
+        "id": 9,
+        "name": "Seat temperature",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "float",
+        "range": "0-70",
+        "units": ".C",
+        "description": "Real-time seat temperature measured by the sensor."
+      },
+      {
+        "id": 10,
+        "name": "Water Temperature Setting",
+        "operations": "RW",
+        "instancetype": "single",
+        "mandatory": false,
+        "type": "integer",
+        "range": "0-8",
+        "units": "",
+        "description": "Water temperature settings (0: room temperature)."
+      },
+      {
+        "id": 11,
+        "name": "Water Temperature",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": false,
+        "type": "float",
+        "range": "0-99",
+        "units": "",
+        "description": "Real-time water temperature measured by the sensor."
+      },
+      {
+        "id": 12,
+        "name": "Dryer Temperature Setting",
+        "operations": "RW",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "0-8",
+        "units": "",
+        "description": "Air dryer temperature settings (0: room temperature)."
+      },
+      {
+        "id": 13,
+        "name": "Jet Position Setting",
+        "operations": "RW",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "0-8",
+        "units": "",
+        "description": "Different positions for the jet."
+      },
+      {
+        "id": 14,
+        "name": "Water Pressure Setting",
+        "operations": "RW",
+        "instancetype": "single",
+        "mandatory": false,
+        "type": "integer",
+        "range": "0-8",
+        "units": "",
+        "description": "Different pressure levels."
+      },
+      {
+        "id": 15,
+        "name": "Water Pressure",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": false,
+        "type": "float",
+        "range": "0-2000",
+        "units": "hP",
+        "description": "Real-time water pressure measured by the sensor."
+      },
+      {
+        "id": 16,
+        "name": "Flush",
+        "operations": "E",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "string",
+        "range": "",
+        "units": "",
+        "description": "Triggers flush operation."
+      },
+      {
+        "id": 17,
+        "name": "Water Massage",
+        "operations": "E",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "string",
+        "range": "",
+        "units": "",
+        "description": "Triggers water massage operation."
+      },
+      {
+        "id": 18,
+        "name": "Warm Air Dryer",
+        "operations": "E",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "string",
+        "range": "",
+        "units": "",
+        "description": "Triggers air dryer operation."
+      },
+      {
+        "id": 19,
+        "name": "Jet Cleaning",
+        "operations": "E",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "string",
+        "range": "",
+        "units": "",
+        "description": "Triggers jet cleaning operation."
+      },
+      {
+        "id": 20,
+        "name": "Bottom Cleaning",
+        "operations": "E",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "string",
+        "range": "",
+        "units": "",
+        "description": "Triggers bottom cleaning operation."
+      },
+      {
+        "id": 21,
+        "name": "Reciprocating Cleaning",
+        "operations": "E",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "string",
+        "range": "",
+        "units": "",
+        "description": "Triggers reciprocating cleaning operation."
+      },
+      {
+        "id": 22,
+        "name": "Female Cleaning",
+        "operations": "E",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "string",
+        "range": "",
+        "units": "",
+        "description": "Triggers female cleaning operation."
+      },
+      {
+        "id": 23,
+        "name": "Body Temperature Measure",
+        "operations": "RW",
+        "instancetype": "single",
+        "mandatory": false,
+        "type": "boolean",
+        "range": "",
+        "units": "",
+        "description": "Enable/disable body temperature measurement."
+      },
+      {
+        "id": 24,
+        "name": "Body Temperature",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": false,
+        "type": "float",
+        "range": "0-99",
+        "units": ".C",
+        "description": "Real-time body temperature measured by the sensor."
+      },
+      {
+        "id": 25,
+        "name": "Body Weight Measure",
+        "operations": "RW",
+        "instancetype": "single",
+        "mandatory": false,
+        "type": "boolean",
+        "range": "",
+        "units": "",
+        "description": "Enable/disable body weight measurement."
+      },
+      {
+        "id": 26,
+        "name": "Body Weight",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": false,
+        "type": "float",
+        "range": "0-150",
+        "units": "kg",
+        "description": "Real-time body weight measured by the sensor."
+      }
+    ]
+  }
+]

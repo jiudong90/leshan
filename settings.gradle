@@ -1,0 +1,22 @@
+rootProject.name = 'leshan'
+include ':leshan-core'
+include ':leshan-server-core'
+include ':leshan-server-cf'
+include ':leshan-server-cluster'
+include ':leshan-client-core'
+include ':leshan-client-cf'
+include ':leshan-integration-tests'
+include ':leshan-server-demo'
+include ':leshan-client-demo'
+include ':leshan-bsserver-demo'
+
+project(':leshan-core').projectDir = "$rootDir/leshan-core" as File
+project(':leshan-server-core').projectDir = "$rootDir/leshan-server-core" as File
+project(':leshan-server-cf').projectDir = "$rootDir/leshan-server-cf" as File
+project(':leshan-server-cluster').projectDir = "$rootDir/leshan-server-cluster" as File
+project(':leshan-client-core').projectDir = "$rootDir/leshan-client-core" as File
+project(':leshan-client-cf').projectDir = "$rootDir/leshan-client-cf" as File
+project(':leshan-integration-tests').projectDir = "$rootDir/leshan-integration-tests" as File
+project(':leshan-server-demo').projectDir = "$rootDir/leshan-server-demo" as File
+project(':leshan-client-demo').projectDir = "$rootDir/leshan-client-demo" as File
+project(':leshan-bsserver-demo').projectDir = "$rootDir/leshan-bsserver-demo" as File
