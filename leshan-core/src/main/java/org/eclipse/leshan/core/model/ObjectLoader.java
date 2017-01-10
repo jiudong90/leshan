@@ -23,7 +23,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.List;
+/import java.util.List;
 
 import org.eclipse.leshan.core.model.json.ObjectModelDeserializer;
 import org.eclipse.leshan.core.model.json.ResourceModelDeserializer;
@@ -68,6 +68,7 @@ public class ObjectLoader {
         if (modelsFolderEnvVar != null) {
             models.addAll(loadObjectsFromDir(new File(modelsFolderEnvVar)));
         }else {
+            //modelsFolderEnvVar = "leshan-core/src/main/resources";
             modelsFolderEnvVar = "leshan/leshan-core/src/main/resources";
             models.addAll(loadObjectsFromDir(new File(modelsFolderEnvVar)));
         }

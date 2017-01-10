@@ -283,4 +283,11 @@ public class RedisClientRegistry implements ClientRegistry {
         return ClientSerDes.deserialize(data);
     }
 
+    //zyj add begin
+    @Override
+    public int numberOfRegistClient() {
+        return 0;
+    }
+    //zyj add end
+
 }

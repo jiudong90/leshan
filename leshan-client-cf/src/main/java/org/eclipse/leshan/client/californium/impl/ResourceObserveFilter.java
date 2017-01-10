@@ -36,7 +36,7 @@ public class ResourceObserveFilter implements ObserveRelationFilter {
         String relationURI = relation.getExchange().getRequest().getOptions().getUriPathString();
         boolean result = relationURI.equals(notifyURI);
         if (LOG.isTraceEnabled()) {
-            LOG.trace("observe " + relationURI + " / " + notifyURI + ": " + result);
+//            LOG.trace("observe " + relationURI + " / " + notifyURI + ": " + result);
         }
         return result;
     }

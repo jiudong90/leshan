@@ -135,8 +135,11 @@ public class ClientServlet extends HttpServlet {
                 ContentFormat contentFormat = contentFormatParam != null
                         ? ContentFormat.fromName(contentFormatParam.toUpperCase()) : null;
 
+                LOG.debug("servlet appointed content format {}", contentFormat);
+
                 // create & process request
                 ReadRequest request = new ReadRequest(contentFormat, target);
+                LOG.debug("request content format {}", request.toString());
                 ReadResponse cResponse = server.send(client, request, TIMEOUT);
                 processDeviceResponse(req, resp, cResponse);
             } else {
@@ -180,6 +183,7 @@ public class ClientServlet extends HttpServlet {
                 String contentFormatParam = req.getParameter(FORMAT_PARAM);
                 ContentFormat contentFormat = contentFormatParam != null
                         ? ContentFormat.fromName(contentFormatParam.toUpperCase()) : null;
+                LOG.debug("servlet appointed content format {}", contentFormat);
 
                 // create & process request
                 LwM2mNode node = extractLwM2mNode(target, req);

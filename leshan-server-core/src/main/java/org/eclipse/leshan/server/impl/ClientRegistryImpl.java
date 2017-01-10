@@ -161,6 +161,13 @@ public class ClientRegistryImpl implements ClientRegistry, Startable, Stoppable 
         }
     }
 
+    //zyj add begin
+    @Override
+    public int numberOfRegistClient() {
+        return clientsByEp.size();
+    }
+    //zyj add end
+
     private final ScheduledExecutorService schedExecutor = Executors.newScheduledThreadPool(1);
 
     private class Cleaner implements Runnable {
