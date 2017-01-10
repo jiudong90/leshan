@@ -17,21 +17,24 @@ package org.eclipse.leshan.server.californium;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 
-import org.eclipse.californium.core.observe.InMemoryObservationStore;
 import org.eclipse.leshan.core.node.codec.DefaultLwM2mNodeDecoder;
 import org.eclipse.leshan.core.node.codec.DefaultLwM2mNodeEncoder;
 import org.eclipse.leshan.core.node.codec.LwM2mNodeDecoder;
 import org.eclipse.leshan.core.node.codec.LwM2mNodeEncoder;
 import org.eclipse.leshan.server.LwM2mServer;
-import org.eclipse.leshan.server.californium.impl.CaliforniumObservationRegistryImpl;
+import org.eclipse.leshan.server.californium.impl.InMemoryRegistrationStore;
 import org.eclipse.leshan.server.californium.impl.LeshanServer;
-import org.eclipse.leshan.server.client.ClientRegistry;
-import org.eclipse.leshan.server.impl.ClientRegistryImpl;
-import org.eclipse.leshan.server.impl.SecurityRegistryImpl;
+import org.eclipse.leshan.server.impl.FileSecurityStore;
 import org.eclipse.leshan.server.model.LwM2mModelProvider;
 import org.eclipse.leshan.server.model.StandardModelProvider;
-import org.eclipse.leshan.server.security.SecurityRegistry;
+import org.eclipse.leshan.server.security.Authorizer;
+import org.eclipse.leshan.server.security.DefaultAuthorizer;
+import org.eclipse.leshan.server.security.SecurityStore;
 
 /**
  * Class helping you to build and configure a Californium based Leshan Lightweight M2M server. Usage: create it, call
@@ -46,16 +49,21 @@ public class LeshanServerBuilder {
     /** IANA assigned UDP port for CoAP with DTLS (so for LWM2M) */
     public static final int PORT_DTLS = 5684;
 
-    private SecurityRegistry securityRegistry;
-    private CaliforniumObservationRegistry observationRegistry;
-    private ClientRegistry clientRegistry;
+    private CaliforniumRegistrationStore registrationStore;
+    private SecurityStore securityStore;
     private LwM2mModelProvider modelProvider;
+    private Authorizer authorizer;
+
     private InetSocketAddress localAddress;
     private InetSocketAddress localSecureAddress;
 
     private LwM2mNodeEncoder encoder;
-
     private LwM2mNodeDecoder decoder;
+
+    private PublicKey publicKey;
+    private PrivateKey privateKey;
+    private X509Certificate[] certificateChain;
+    private Certificate[] trustedCertificates;
 
     public LeshanServerBuilder setLocalAddress(String hostname, int port) {
         if (hostname == null) {
@@ -85,23 +93,43 @@ public class LeshanServerBuilder {
         return this;
     }
 
-    public LeshanServerBuilder setClientRegistry(ClientRegistry clientRegistry) {
-        this.clientRegistry = clientRegistry;
+    public LeshanServerBuilder setRegistrationStore(CaliforniumRegistrationStore registrationStore) {
+        this.registrationStore = registrationStore;
         return this;
     }
 
-    public LeshanServerBuilder setObservationRegistry(CaliforniumObservationRegistry observationRegistry) {
-        this.observationRegistry = observationRegistry;
+    public LeshanServerBuilder setSecurityStore(SecurityStore securityStore) {
+        this.securityStore = securityStore;
         return this;
     }
 
-    public LeshanServerBuilder setSecurityRegistry(SecurityRegistry securityRegistry) {
-        this.securityRegistry = securityRegistry;
+    public LeshanServerBuilder setAuthorizer(Authorizer authorizer) {
+        this.authorizer = authorizer;
         return this;
     }
 
     public LeshanServerBuilder setObjectModelProvider(LwM2mModelProvider objectModelProvider) {
         this.modelProvider = objectModelProvider;
+        return this;
+    }
+
+    public LeshanServerBuilder setPublicKey(PublicKey publicKey) {
+        this.publicKey = publicKey;
+        return this;
+    }
+
+    public LeshanServerBuilder setPrivateKey(PrivateKey privateKey) {
+        this.privateKey = privateKey;
+        return this;
+    }
+
+    public LeshanServerBuilder setCertificateChain(X509Certificate[] certificateChain) {
+        this.certificateChain = certificateChain;
+        return this;
+    }
+
+    public LeshanServerBuilder setTrustedCertificates(Certificate[] trustedCertificates) {
+        this.trustedCertificates = trustedCertificates;
         return this;
     }
 
@@ -120,10 +148,12 @@ public class LeshanServerBuilder {
             localAddress = new InetSocketAddress((InetAddress) null, PORT);
         if (localSecureAddress == null)
             localSecureAddress = new InetSocketAddress((InetAddress) null, PORT_DTLS);
-        if (clientRegistry == null)
-            clientRegistry = new ClientRegistryImpl();
-        if (securityRegistry == null)
-            securityRegistry = new SecurityRegistryImpl();
+        if (registrationStore == null)
+            registrationStore = new InMemoryRegistrationStore();
+        if (securityStore == null)
+            securityStore = new FileSecurityStore();
+        if (authorizer == null)
+            authorizer = new DefaultAuthorizer(securityStore);
         if (modelProvider == null)
             modelProvider = new StandardModelProvider();
         if (encoder == null)
@@ -131,11 +161,7 @@ public class LeshanServerBuilder {
         if (decoder == null)
             decoder = new DefaultLwM2mNodeDecoder();
 
-        if (observationRegistry == null)
-            observationRegistry = new CaliforniumObservationRegistryImpl(new InMemoryObservationStore(), clientRegistry,
-                    modelProvider, decoder);
-
-        return new LeshanServer(localAddress, localSecureAddress, clientRegistry, securityRegistry, observationRegistry,
-                modelProvider, encoder, decoder);
+        return new LeshanServer(localAddress, localSecureAddress, registrationStore, securityStore, authorizer,
+                modelProvider, encoder, decoder, publicKey, privateKey, certificateChain, trustedCertificates);
     }
 }

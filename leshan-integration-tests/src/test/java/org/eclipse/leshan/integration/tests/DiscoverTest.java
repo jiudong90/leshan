@@ -16,11 +16,12 @@
 
 package org.eclipse.leshan.integration.tests;
 
-import static org.eclipse.leshan.ResponseCode.CONTENT;
-import static org.eclipse.leshan.ResponseCode.NOT_FOUND;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.eclipse.leshan.ResponseCode.*;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.junit.Assert.*;
 
+import org.eclipse.californium.core.coap.Response;
 import org.eclipse.leshan.LinkObject;
 import org.eclipse.leshan.core.request.DiscoverRequest;
 import org.eclipse.leshan.core.response.DiscoverResponse;
@@ -34,6 +35,7 @@ public class DiscoverTest {
 
     @Before
     public void start() {
+        helper.initialize();
         helper.createServer();
         helper.server.start();
         helper.createClient();
@@ -50,10 +52,12 @@ public class DiscoverTest {
     @Test
     public void can_discover_object() throws InterruptedException {
         // read ACL object
-        DiscoverResponse response = helper.server.send(helper.getClient(), new DiscoverRequest(2));
+        DiscoverResponse response = helper.server.send(helper.getCurrentRegistration(), new DiscoverRequest(2));
 
         // verify result
         assertEquals(CONTENT, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
 
         LinkObject[] payload = response.getObjectLinks();
         assertArrayEquals(LinkObject.parse("</2>, </2/0/0>, </2/0/1>, </2/0/2>, </2/0/3>".getBytes()), payload);
@@ -62,19 +66,23 @@ public class DiscoverTest {
     @Test
     public void cant_discover_non_existent_object() throws InterruptedException {
         // read ACL object
-        DiscoverResponse response = helper.server.send(helper.getClient(), new DiscoverRequest(4));
+        DiscoverResponse response = helper.server.send(helper.getCurrentRegistration(), new DiscoverRequest(4));
 
         // verify result
         assertEquals(NOT_FOUND, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     @Test
     public void can_discover_object_instance() throws InterruptedException {
         // read ACL object
-        DiscoverResponse response = helper.server.send(helper.getClient(), new DiscoverRequest(3, 0));
+        DiscoverResponse response = helper.server.send(helper.getCurrentRegistration(), new DiscoverRequest(3, 0));
 
         // verify result
         assertEquals(CONTENT, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
 
         LinkObject[] payload = response.getObjectLinks();
         assertArrayEquals(LinkObject.parse("</3/0>".getBytes()), payload);
@@ -83,19 +91,23 @@ public class DiscoverTest {
     @Test
     public void cant_discover_non_existent_instance() throws InterruptedException {
         // read ACL object
-        DiscoverResponse response = helper.server.send(helper.getClient(), new DiscoverRequest(3, 1));
+        DiscoverResponse response = helper.server.send(helper.getCurrentRegistration(), new DiscoverRequest(3, 1));
 
         // verify result
         assertEquals(NOT_FOUND, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     @Test
     public void can_discover_resource() throws InterruptedException {
         // read ACL object
-        DiscoverResponse response = helper.server.send(helper.getClient(), new DiscoverRequest(3, 0, 0));
+        DiscoverResponse response = helper.server.send(helper.getCurrentRegistration(), new DiscoverRequest(3, 0, 0));
 
         // verify result
         assertEquals(CONTENT, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
 
         LinkObject[] payload = response.getObjectLinks();
         assertArrayEquals(LinkObject.parse("</3/0/0>".getBytes()), payload);
@@ -104,36 +116,44 @@ public class DiscoverTest {
     @Test
     public void cant_discover_resource_of_non_existent_object() throws InterruptedException {
         // read ACL object
-        DiscoverResponse response = helper.server.send(helper.getClient(), new DiscoverRequest(4, 0, 0));
+        DiscoverResponse response = helper.server.send(helper.getCurrentRegistration(), new DiscoverRequest(4, 0, 0));
 
         // verify result
         assertEquals(NOT_FOUND, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     @Test
     public void cant_discover_resource_of_non_existent_instance() throws InterruptedException {
         // read ACL object
-        DiscoverResponse response = helper.server.send(helper.getClient(), new DiscoverRequest(3, 1, 0));
+        DiscoverResponse response = helper.server.send(helper.getCurrentRegistration(), new DiscoverRequest(3, 1, 0));
 
         // verify result
         assertEquals(NOT_FOUND, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     @Test
     public void cant_discover_resource_of_non_existent_instance_and_resource() throws InterruptedException {
         // read ACL object
-        DiscoverResponse response = helper.server.send(helper.getClient(), new DiscoverRequest(3, 1, 20));
+        DiscoverResponse response = helper.server.send(helper.getCurrentRegistration(), new DiscoverRequest(3, 1, 20));
 
         // verify result
         assertEquals(NOT_FOUND, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     @Test
     public void cant_discover_resource_of_non_existent_resource() throws InterruptedException {
         // read ACL object
-        DiscoverResponse response = helper.server.send(helper.getClient(), new DiscoverRequest(3, 0, 20));
+        DiscoverResponse response = helper.server.send(helper.getCurrentRegistration(), new DiscoverRequest(3, 0, 20));
 
         // verify result
         assertEquals(NOT_FOUND, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 }

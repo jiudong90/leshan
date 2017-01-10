@@ -23,6 +23,7 @@ import org.eclipse.leshan.core.model.ResourceModel.Type;
 import org.eclipse.leshan.core.node.LwM2mMultipleResource;
 import org.eclipse.leshan.core.node.LwM2mNode;
 import org.eclipse.leshan.core.node.LwM2mSingleResource;
+import org.eclipse.leshan.core.node.ObjectLink;
 import org.eclipse.leshan.util.Validate;
 
 public class ReadResponse extends AbstractLwM2mResponse {
@@ -30,7 +31,11 @@ public class ReadResponse extends AbstractLwM2mResponse {
     protected final LwM2mNode content;
 
     public ReadResponse(ResponseCode code, LwM2mNode content, String errorMessage) {
-        super(code, errorMessage);
+        this(code, content, errorMessage, null);
+    }
+
+    public ReadResponse(ResponseCode code, LwM2mNode content, String errorMessage, Object coapResponse) {
+        super(code, errorMessage, coapResponse);
 
         if (ResponseCode.CONTENT.equals(code)) {
             Validate.notNull(content);
@@ -63,7 +68,7 @@ public class ReadResponse extends AbstractLwM2mResponse {
     // Syntactic sugar static constructors :
 
     public static ReadResponse success(LwM2mNode content) {
-        return new ReadResponse(ResponseCode.CONTENT, content, null);
+        return new ReadResponse(ResponseCode.CONTENT, content, null, null);
     }
 
     public static ReadResponse success(int resourceId, String value) {
@@ -76,6 +81,11 @@ public class ReadResponse extends AbstractLwM2mResponse {
 
     public static ReadResponse success(int resourceId, long value) {
         return new ReadResponse(ResponseCode.CONTENT, LwM2mSingleResource.newIntegerResource(resourceId, value), null);
+    }
+
+    public static ReadResponse success(int resourceId, ObjectLink value) {
+        return new ReadResponse(ResponseCode.CONTENT, LwM2mSingleResource.newObjectLinkResource(resourceId, value),
+                null);
     }
 
     public static ReadResponse success(int resourceId, double value) {

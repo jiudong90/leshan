@@ -19,11 +19,12 @@ import org.eclipse.leshan.core.request.DownlinkRequest;
 import org.eclipse.leshan.core.response.ErrorCallback;
 import org.eclipse.leshan.core.response.LwM2mResponse;
 import org.eclipse.leshan.core.response.ResponseCallback;
-import org.eclipse.leshan.server.client.Client;
-import org.eclipse.leshan.server.client.ClientRegistry;
+import org.eclipse.leshan.server.client.Registration;
+import org.eclipse.leshan.server.client.RegistrationService;
 import org.eclipse.leshan.server.model.LwM2mModelProvider;
-import org.eclipse.leshan.server.observation.ObservationRegistry;
-import org.eclipse.leshan.server.security.SecurityRegistry;
+import org.eclipse.leshan.server.observation.ObservationService;
+import org.eclipse.leshan.server.response.ResponseListener;
+import org.eclipse.leshan.server.security.SecurityStore;
 
 /**
  * An OMA Lightweight M2M device management server.
@@ -59,7 +60,7 @@ public interface LwM2mServer {
      * @return the response or <code>null</code> if the CoAP timeout expires ( see
      *         http://tools.ietf.org/html/rfc7252#section-4.2 ).
      */
-    <T extends LwM2mResponse> T send(Client destination, DownlinkRequest<T> request) throws InterruptedException;
+    <T extends LwM2mResponse> T send(Registration destination, DownlinkRequest<T> request) throws InterruptedException;
 
     /**
      * Sends a Lightweight M2M request synchronously. Will block until a response is received from the remote client.
@@ -69,31 +70,57 @@ public interface LwM2mServer {
      * @param timeout the request timeout in millisecond
      * @return the response or <code>null</code> if the timeout expires (given parameter or CoAP timeout).
      */
-    <T extends LwM2mResponse> T send(Client destination, DownlinkRequest<T> request, long timeout)
+    <T extends LwM2mResponse> T send(Registration destination, DownlinkRequest<T> request, long timeout)
             throws InterruptedException;
 
     /**
      * Sends a Lightweight M2M request asynchronously.
      */
-    <T extends LwM2mResponse> void send(Client destination, DownlinkRequest<T> request,
+    <T extends LwM2mResponse> void send(Registration destination, DownlinkRequest<T> request,
             ResponseCallback<T> responseCallback, ErrorCallback errorCallback);
 
     /**
-     * Get the client registry containing the list of connected clients. You can use this object for listening client
-     * registration/deregistration.
+     * sends a Lightweight M2M request asynchronously and uses the requestTicket to correlate the response from a LWM2M
+     * Client.
+     *
+     * @param destination registration meta data of a LWM2M client.
+     * @param requestTicket a globally unique identifier for correlating the response
+     * @param request an instance of downlink request.
+     * @param <T> instance of LwM2mResponse
      */
-    ClientRegistry getClientRegistry();
+    <T extends LwM2mResponse> void send(Registration destination, String requestTicket, DownlinkRequest<T> request);
 
     /**
-     * Get the Observation registry containing of current observation. You can use this object for listening resource
+     * adds the listener for the given LWM2M client. This method shall be used to re-register a listener for already
+     * sent messages or pending messages.
+     *
+     * @param listener global listener for handling the responses from a LWM2M client.
+     */
+    void addResponseListener(ResponseListener listener);
+
+    /**
+     * removes the given instance of response listener from LWM2M Sender's list of response listeners.
+     * 
+     * @param listener target listener to be removed.
+     */
+    void removeResponseListener(ResponseListener listener);
+
+    /**
+     * Get the registration service to access to registered clients. You can use this object for listening client
+     * registration lifecycle.
+     */
+    RegistrationService getRegistrationService();
+
+    /**
+     * Get the Observation service to access current observations. You can use this object for listening resource
      * observation or cancel it.
      */
-    ObservationRegistry getObservationRegistry();
+    ObservationService getObservationService();
 
     /**
-     * Get the SecurityRegistry containing of security information.
+     * Get the SecurityStore containing of security information.
      */
-    SecurityRegistry getSecurityRegistry();
+    SecurityStore getSecurityStore();
 
     /**
      * Get the provider in charge of retrieving the object definitions for each client.

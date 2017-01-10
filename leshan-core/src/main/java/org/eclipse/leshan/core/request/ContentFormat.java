@@ -19,11 +19,15 @@ package org.eclipse.leshan.core.request;
  * Data format defined by the LWM2M specification
  */
 public class ContentFormat {
-    public static final int TLV_CODE = 1542;
-    public static final int JSON_CODE = 1543;
+    public static final int TLV_CODE = 11542;
+    public static final int JSON_CODE = 11543;
     public static final int TEXT_CODE = 0;
     public static final int OPAQUE_CODE = 42;
     public static final int LINK_CODE = 40;
+
+    // Keep old code for backward-compatibility
+    public static final int OLD_JSON_CODE = 1543;
+    public static final int OLD_TLV_CODE = 1542;
 
     public static final ContentFormat TLV = new ContentFormat("TLV", "application/vnd.oma.lwm2m+tlv", TLV_CODE);
     public static final ContentFormat JSON = new ContentFormat("JSON", "application/vnd.oma.lwm2m+json", JSON_CODE);
@@ -94,10 +98,37 @@ public class ContentFormat {
      */
     public static ContentFormat fromName(String name) {
         for (ContentFormat t : knownContentFormat) {
-            if (t.getName() == name) {
+            if (t.getName().equals(name)) {
                 return t;
             }
         }
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("ContentFormat [name=%s, code=%s]", name, code);
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + code;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ContentFormat other = (ContentFormat) obj;
+        if (code != other.code)
+            return false;
+        return true;
     }
 }

@@ -21,8 +21,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.leshan.core.model.LwM2mModel;
-import org.eclipse.leshan.core.model.ResourceModel;
-import org.eclipse.leshan.core.model.ResourceModel.Type;
 import org.eclipse.leshan.core.node.LwM2mNode;
 import org.eclipse.leshan.core.node.LwM2mObject;
 import org.eclipse.leshan.core.node.LwM2mObjectInstance;
@@ -48,25 +46,6 @@ public class DefaultLwM2mNodeDecoder implements LwM2mNodeDecoder {
         return decode(content, format, path, model, nodeClassFromPath(path));
     }
 
-    private ContentFormat guessContentType(LwM2mPath path, LwM2mModel model) {
-        ContentFormat format;
-        if (path.isResource()) {
-            ResourceModel rDesc = model.getResourceModel(path.getObjectId(), path.getResourceId());
-            if (rDesc != null && rDesc.multiple) {
-                format = ContentFormat.TLV;
-            } else {
-                if (rDesc != null && rDesc.type == Type.OPAQUE) {
-                    format = ContentFormat.OPAQUE;
-                } else {
-                    format = ContentFormat.TEXT;
-                }
-            }
-        } else {
-            format = ContentFormat.TLV;
-        }
-        return format;
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public <T extends LwM2mNode> T decode(byte[] content, ContentFormat format, LwM2mPath path, LwM2mModel model,
@@ -74,21 +53,19 @@ public class DefaultLwM2mNodeDecoder implements LwM2mNodeDecoder {
 
         LOG.debug("Decoding value for path {} and format {}: {}", path, format, content);
         Validate.notNull(path);
-
-        // If no format is given, guess the best one to use.
-        if (format == null) {
-            format = guessContentType(path, model);
-        }
+        Validate.notNull(format);
 
         // Decode content.
         switch (format.getCode()) {
         case ContentFormat.TEXT_CODE:
             return (T) LwM2mNodeTextDecoder.decode(content, path, model);
         case ContentFormat.TLV_CODE:
+        case ContentFormat.OLD_TLV_CODE:
             return LwM2mNodeTlvDecoder.decode(content, path, model, nodeClass);
         case ContentFormat.OPAQUE_CODE:
             return (T) LwM2mNodeOpaqueDecoder.decode(content, path, model);
         case ContentFormat.JSON_CODE:
+        case ContentFormat.OLD_JSON_CODE:
             return LwM2mNodeJsonDecoder.decode(content, path, model, nodeClass);
         case ContentFormat.LINK_CODE:
             throw new UnsupportedOperationException("Content format " + format + " not yet implemented '" + path + "'");
@@ -101,21 +78,19 @@ public class DefaultLwM2mNodeDecoder implements LwM2mNodeDecoder {
             LwM2mModel model) throws InvalidValueException {
         LOG.debug("Decoding value for path {} and format {}: {}", path, format, content);
         Validate.notNull(path);
-
-        // If no format is given, guess the best one to use.
-        if (format == null) {
-            format = guessContentType(path, model);
-        }
+        Validate.notNull(format);
 
         // Decode content.
         switch (format.getCode()) {
         case ContentFormat.TEXT_CODE:
             return toTimestampedNodes(LwM2mNodeTextDecoder.decode(content, path, model));
         case ContentFormat.TLV_CODE:
+        case ContentFormat.OLD_TLV_CODE:
             return toTimestampedNodes(LwM2mNodeTlvDecoder.decode(content, path, model, nodeClassFromPath(path)));
         case ContentFormat.OPAQUE_CODE:
             return toTimestampedNodes(LwM2mNodeOpaqueDecoder.decode(content, path, model));
         case ContentFormat.JSON_CODE:
+        case ContentFormat.OLD_JSON_CODE:
             return LwM2mNodeJsonDecoder.decodeTimestamped(content, path, model, nodeClassFromPath(path));
         case ContentFormat.LINK_CODE:
             throw new UnsupportedOperationException("Content format " + format + " not yet implemented '" + path + "'");
@@ -148,8 +123,10 @@ public class DefaultLwM2mNodeDecoder implements LwM2mNodeDecoder {
         switch (format.getCode()) {
         case ContentFormat.TEXT_CODE:
         case ContentFormat.TLV_CODE:
+        case ContentFormat.OLD_TLV_CODE:
         case ContentFormat.OPAQUE_CODE:
         case ContentFormat.JSON_CODE:
+        case ContentFormat.OLD_JSON_CODE:
             return true;
         default:
             return false;

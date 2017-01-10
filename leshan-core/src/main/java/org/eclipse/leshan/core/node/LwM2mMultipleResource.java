@@ -68,6 +68,9 @@ public class LwM2mMultipleResource implements LwM2mResource {
         case TIME:
             Validate.allElementsOfType(values.values(), Date.class);
             break;
+        case OBJLNK:
+            Validate.allElementsOfType(values.values(), ObjectLink.class);
+            break;
         default:
             throw new IllegalArgumentException(String.format("Type %s is not supported", type.name()));
         }
@@ -97,6 +100,11 @@ public class LwM2mMultipleResource implements LwM2mResource {
     public static LwM2mMultipleResource newDateResource(int id, Map<Integer, Date> values) {
         Validate.noNullElements(values.values());
         return new LwM2mMultipleResource(id, values, Type.TIME);
+    }
+
+    public static LwM2mMultipleResource newObjectLinkResource(int id, Map<Integer, ObjectLink> values) {
+        Validate.noNullElements(values.values());
+        return new LwM2mMultipleResource(id, values, Type.OBJLNK);
     }
 
     public static LwM2mMultipleResource newBinaryResource(int id, Map<Integer, byte[]> values) {

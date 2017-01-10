@@ -18,14 +18,8 @@
 
 package org.eclipse.leshan.client.demo;
 
-import static org.eclipse.leshan.LwM2mId.DEVICE;
-import static org.eclipse.leshan.LwM2mId.LOCATION;
-import static org.eclipse.leshan.LwM2mId.SECURITY;
-import static org.eclipse.leshan.LwM2mId.SERVER;
-import static org.eclipse.leshan.client.object.Security.noSec;
-import static org.eclipse.leshan.client.object.Security.noSecBootstap;
-import static org.eclipse.leshan.client.object.Security.psk;
-import static org.eclipse.leshan.client.object.Security.pskBootstrap;
+import static org.eclipse.leshan.LwM2mId.*;
+import static org.eclipse.leshan.client.object.Security.*;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -50,10 +44,11 @@ import org.slf4j.LoggerFactory;
 public class LeshanClientDemo {
 
     private static final Logger LOG = LoggerFactory.getLogger(LeshanClientDemo.class);
-
+    private static final int OBJECT_ID_TEMPERATURE_SENSOR = 3303;
     private final static String DEFAULT_ENDPOINT = "LeshanClientDemo";
-    private final static MyLocation locationInstance = new MyLocation();
     private final static String USAGE = "java -jar leshan-client-demo.jar [OPTION]";
+
+    private static MyLocation locationInstance;
 
     public static void main(final String[] args) {
 
@@ -75,6 +70,9 @@ public class LeshanClientDemo {
                 "Set the LWM2M or Bootstrap server PSK identity in ascii.\nUse none secure mode if not set.");
         options.addOption("p", true,
                 "Set the LWM2M or Bootstrap server Pre-Shared-Key in hexa.\nUse none secure mode if not set.");
+        options.addOption("pos", true,
+                "Set the initial location (latitude, longitude) of the device to be reported by the Location object. Format: lat_float:long_float");
+        options.addOption("sf", true, "Scale factor to apply when shifting position. Default is 1.0.");
         HelpFormatter formatter = new HelpFormatter();
         formatter.setOptionComparator(null);
 
@@ -96,14 +94,14 @@ public class LeshanClientDemo {
 
         // Abort if unexpected options
         if (cl.getArgs().length > 0) {
-            System.out.println("Unexpected option or arguments : " + cl.getArgList());
+            System.err.println("Unexpected option or arguments : " + cl.getArgList());
             formatter.printHelp(USAGE, options);
             return;
         }
 
         // Abort if we have not identity and key for psk.
         if ((cl.hasOption("i") && !cl.hasOption("p")) || !cl.hasOption("i") && cl.hasOption("p")) {
-            System.out.println("You should precise identity and Pre-Shared-Key if you want to connect in PSK");
+            System.err.println("You should precise identity and Pre-Shared-Key if you want to connect in PSK");
             formatter.printHelp(USAGE, options);
             return;
         }
@@ -162,13 +160,46 @@ public class LeshanClientDemo {
             secureLocalPort = Integer.parseInt(cl.getOptionValue("slp"));
         }
 
+        Float latitude = null;
+        Float longitude = null;
+        Float scaleFactor = 1.0f;
+        // get initial Location
+        if (cl.hasOption("pos")) {
+            try {
+                String pos = cl.getOptionValue("pos");
+                int colon = pos.indexOf(':');
+                if (colon == -1 || colon == 0 || colon == pos.length() - 1) {
+                    System.err.println("Position must be a set of two floats separated by a colon, e.g. 48.131:11.459");
+                    formatter.printHelp(USAGE, options);
+                    return;
+                }
+                latitude = Float.valueOf(pos.substring(0, colon));
+                longitude = Float.valueOf(pos.substring(colon + 1));
+            } catch (NumberFormatException e) {
+                System.err.println("Position must be a set of two floats separated by a colon, e.g. 48.131:11.459");
+                formatter.printHelp(USAGE, options);
+                return;
+            }
+        }
+        if (cl.hasOption("sf")) {
+            try {
+                scaleFactor = Float.valueOf(cl.getOptionValue("sf"));
+            } catch (NumberFormatException e) {
+                System.err.println("Scale factor must be a float, e.g. 1.0 or 0.01");
+                formatter.printHelp(USAGE, options);
+                return;
+            }
+        }
+
         createAndStartClient(endpoint, localAddress, localPort, secureLocalAddress, secureLocalPort, cl.hasOption("b"),
-                serverURI, pskIdentity, pskKey);
+                serverURI, pskIdentity, pskKey, latitude, longitude, scaleFactor);
     }
 
     public static void createAndStartClient(String endpoint, String localAddress, int localPort,
             String secureLocalAddress, int secureLocalPort, boolean needBootstrap, String serverURI, byte[] pskIdentity,
-            byte[] pskKey) {
+            byte[] pskKey, Float latitude, Float longitude, float scaleFactor) {
+
+        locationInstance = new MyLocation(latitude, longitude, scaleFactor);
 
         // Initialize object list
         ObjectsInitializer initializer = new ObjectsInitializer();
@@ -188,7 +219,8 @@ public class LeshanClientDemo {
         }
         initializer.setClassForObject(DEVICE, MyDevice.class);
         initializer.setInstancesForObject(LOCATION, locationInstance);
-        List<LwM2mObjectEnabler> enablers = initializer.create(SECURITY, SERVER, DEVICE, LOCATION);
+        initializer.setInstancesForObject(OBJECT_ID_TEMPERATURE_SENSOR, new RandomTemperatureSensor());
+        List<LwM2mObjectEnabler> enablers = initializer.create(SECURITY, SERVER, DEVICE, LOCATION, OBJECT_ID_TEMPERATURE_SENSOR);
 
         // Create client
         LeshanClientBuilder builder = new LeshanClientBuilder(endpoint);
@@ -197,7 +229,7 @@ public class LeshanClientDemo {
         builder.setObjects(enablers);
         final LeshanClient client = builder.build();
 
-        LOG.info("Press 'w','a','s','d' to change reported Location.");
+        LOG.info("Press 'w','a','s','d' to change reported Location ({},{}).", locationInstance.getLatitude(), locationInstance.getLongitude());
 
         // Start the client
         client.start();

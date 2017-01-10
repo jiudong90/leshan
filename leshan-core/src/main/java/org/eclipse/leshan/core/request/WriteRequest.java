@@ -26,6 +26,7 @@ import org.eclipse.leshan.core.node.LwM2mObjectInstance;
 import org.eclipse.leshan.core.node.LwM2mPath;
 import org.eclipse.leshan.core.node.LwM2mResource;
 import org.eclipse.leshan.core.node.LwM2mSingleResource;
+import org.eclipse.leshan.core.node.ObjectLink;
 import org.eclipse.leshan.core.response.WriteResponse;
 import org.eclipse.leshan.util.Validate;
 
@@ -212,6 +213,23 @@ public class WriteRequest extends AbstractDownlinkRequest<WriteResponse> {
                 LwM2mSingleResource.newBinaryResource(resourceId, value));
     }
 
+    /**
+     * Request to write a <b> Objlnk Single-Instance Resource</b> using the TLV content format.
+     */
+    public WriteRequest(final int objectId, final int objectInstanceId, final int resourceId, ObjectLink value) {
+        this(ContentFormat.TLV, objectId, objectInstanceId, resourceId, value);
+    }
+
+    /**
+     * Request to write a <b> Objlnk Single-Instance Resource</b> using the given content format (OPAQUE, TLV, JSON,
+     * TEXT).
+     */
+    public WriteRequest(final ContentFormat contentFormat, final int objectId, final int objectInstanceId,
+            final int resourceId, ObjectLink value) {
+        this(Mode.REPLACE, contentFormat, new LwM2mPath(objectId, objectInstanceId, resourceId),
+                LwM2mSingleResource.newObjectLinkResource(resourceId, value));
+    }
+
     // ***************** write multi instance resource ****************** //
     /**
      * Request to write a <b>Multi-Instance Resource</b>.
@@ -347,4 +365,34 @@ public class WriteRequest extends AbstractDownlinkRequest<WriteResponse> {
                 node);
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((contentFormat == null) ? 0 : contentFormat.hashCode());
+        result = prime * result + ((mode == null) ? 0 : mode.hashCode());
+        result = prime * result + ((node == null) ? 0 : node.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        WriteRequest other = (WriteRequest) obj;
+        if (contentFormat != other.contentFormat)
+            return false;
+        if (mode != other.mode)
+            return false;
+        if (node == null) {
+            if (other.node != null)
+                return false;
+        } else if (!node.equals(other.node))
+            return false;
+        return true;
+    }
 }

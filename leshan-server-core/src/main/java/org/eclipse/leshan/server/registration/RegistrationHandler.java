@@ -25,30 +25,29 @@ import org.eclipse.leshan.core.request.UpdateRequest;
 import org.eclipse.leshan.core.response.DeregisterResponse;
 import org.eclipse.leshan.core.response.RegisterResponse;
 import org.eclipse.leshan.core.response.UpdateResponse;
-import org.eclipse.leshan.server.client.Client;
-import org.eclipse.leshan.server.client.ClientRegistry;
-import org.eclipse.leshan.server.client.ClientUpdate;
-import org.eclipse.leshan.server.security.SecurityCheck;
-import org.eclipse.leshan.server.security.SecurityInfo;
-import org.eclipse.leshan.server.security.SecurityStore;
+import org.eclipse.leshan.server.client.Registration;
+import org.eclipse.leshan.server.client.RegistrationService;
+import org.eclipse.leshan.server.client.RegistrationUpdate;
+import org.eclipse.leshan.server.impl.RegistrationServiceImpl;
+import org.eclipse.leshan.server.security.Authorizer;
 import org.eclipse.leshan.util.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Handle the client registration logic. Check if the client is allowed to register, with the wanted security scheme.
- * Create the {@link Client} representing the registered client and add it to the {@link ClientRegistry}
+ * Create the {@link Registration} representing the registered client and add it to the {@link RegistrationService}
  */
 public class RegistrationHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(RegistrationHandler.class);
 
-    private SecurityStore securityStore;
-    private ClientRegistry clientRegistry;
+    private RegistrationServiceImpl registrationService;
+    private Authorizer authorizer;
 
-    public RegistrationHandler(ClientRegistry clientRegistry, SecurityStore securityStore) {
-        this.clientRegistry = clientRegistry;
-        this.securityStore = securityStore;
+    public RegistrationHandler(RegistrationServiceImpl registrationService, Authorizer authorizer) {
+        this.registrationService = registrationService;
+        this.authorizer = authorizer;
     }
 
     public RegisterResponse register(Identity sender, RegisterRequest registerRequest, InetSocketAddress serverEndpoint) {
@@ -57,12 +56,7 @@ public class RegistrationHandler {
             return RegisterResponse.badRequest(null);
         }
 
-        // We must check if the client is using the right identity.
-        if (!isAuthorized(registerRequest.getEndpointName(), sender)) {
-            return RegisterResponse.forbidden(null);
-        }
-
-        Client.Builder builder = new Client.Builder(RegistrationHandler.createRegistrationId(),
+        Registration.Builder builder = new Registration.Builder(RegistrationHandler.createRegistrationId(),
                 registerRequest.getEndpointName(), sender.getPeerAddress().getAddress(), sender.getPeerAddress()
                         .getPort(), serverEndpoint);
 
@@ -71,11 +65,16 @@ public class RegistrationHandler {
                 .smsNumber(registerRequest.getSmsNumber()).registrationDate(new Date()).lastUpdate(new Date())
                 .additionalRegistrationAttributes(registerRequest.getAdditionalAttributes());
 
-        Client client = builder.build();
+        Registration registration = builder.build();
 
-        if (clientRegistry.registerClient(client)) {
-            LOG.debug("New registered client: {}", client);
-            return RegisterResponse.success(client.getRegistrationId());
+        // We must check if the client is using the right identity.
+        if (!authorizer.isAuthorized(registerRequest, registration, sender)) {
+            return RegisterResponse.forbidden(null);
+        }
+
+        if (registrationService.registerClient(registration)) {
+            LOG.debug("New registered client: {}", registration);
+            return RegisterResponse.success(registration.getId());
         } else {
             return RegisterResponse.forbidden(null);
         }
@@ -88,18 +87,20 @@ public class RegistrationHandler {
         }
 
         // We must check if the client is using the right identity.
-        Client client = clientRegistry.findByRegistrationId(updateRequest.getRegistrationId());
-        if (client == null) {
+        Registration registration = registrationService.getById(updateRequest.getRegistrationId());
+        if (registration == null) {
             return UpdateResponse.notFound();
         }
-        if (!isAuthorized(client.getEndpoint(), sender)) {
+        if (!authorizer.isAuthorized(updateRequest, registration, sender)) {
+            // TODO replace by Forbidden if https://github.com/OpenMobileAlliance/OMA_LwM2M_for_Developers/issues/181 is
+            // closed.
             return UpdateResponse.badRequest("forbidden");
         }
 
-        client = clientRegistry.updateClient(new ClientUpdate(updateRequest.getRegistrationId(), sender
+        registration = registrationService.updateRegistration(new RegistrationUpdate(updateRequest.getRegistrationId(), sender
                 .getPeerAddress().getAddress(), sender.getPeerAddress().getPort(), updateRequest.getLifeTimeInSec(),
                 updateRequest.getSmsNumber(), updateRequest.getBindingMode(), updateRequest.getObjectLinks()));
-        if (client == null) {
+        if (registration == null) {
             return UpdateResponse.notFound();
         } else {
             return UpdateResponse.success();
@@ -112,15 +113,17 @@ public class RegistrationHandler {
         }
 
         // We must check if the client is using the right identity.
-        Client client = clientRegistry.findByRegistrationId(deregisterRequest.getRegistrationID());
-        if (client == null) {
+        Registration registration = registrationService.getById(deregisterRequest.getRegistrationID());
+        if (registration == null) {
             return DeregisterResponse.notFound();
         }
-        if (!isAuthorized(client.getEndpoint(), sender)) {
+        if (!authorizer.isAuthorized(deregisterRequest, registration, sender)) {
+            // TODO replace by Forbidden if https://github.com/OpenMobileAlliance/OMA_LwM2M_for_Developers/issues/181 is
+            // closed.
             return DeregisterResponse.badRequest("forbidden");
         }
 
-        Client unregistered = clientRegistry.deregisterClient(deregisterRequest.getRegistrationID());
+        Registration unregistered = registrationService.deregisterClient(deregisterRequest.getRegistrationID());
         if (unregistered != null) {
             return DeregisterResponse.success();
         } else {
@@ -132,19 +135,4 @@ public class RegistrationHandler {
     private static String createRegistrationId() {
         return RandomStringUtils.random(10, true, true);
     }
-
-    /**
-     * Return true if the client with the given lightweight M2M endPoint is authorized to communicate with the given
-     * security parameters.
-     * 
-     * @param lwM2mEndPointName the lightweight M2M endPoint name
-     * @param clientIdentity the identity at TLS level
-     * @return true if device get authorization
-     */
-    private boolean isAuthorized(String lwM2mEndPointName, Identity clientIdentity) {
-        // do we have security information for this client?
-        SecurityInfo expectedSecurityInfo = securityStore.getByEndpoint(lwM2mEndPointName);
-        return SecurityCheck.checkSecurityInfo(lwM2mEndPointName, clientIdentity, expectedSecurityInfo);
-    }
-
 }

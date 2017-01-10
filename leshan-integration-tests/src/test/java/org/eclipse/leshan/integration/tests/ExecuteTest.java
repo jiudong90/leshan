@@ -18,8 +18,11 @@
 
 package org.eclipse.leshan.integration.tests;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.junit.Assert.*;
 
+import org.eclipse.californium.core.coap.Response;
 import org.eclipse.leshan.ResponseCode;
 import org.eclipse.leshan.core.request.ExecuteRequest;
 import org.eclipse.leshan.core.response.ExecuteResponse;
@@ -33,6 +36,7 @@ public class ExecuteTest {
 
     @Before
     public void start() {
+        helper.initialize();
         helper.createServer();
         helper.server.start();
         helper.createClient();
@@ -44,71 +48,85 @@ public class ExecuteTest {
     public void stop() {
         helper.client.stop(false);
         helper.server.stop();
+        helper.dispose();
     }
 
     @Test
     public void cannot_execute_read_only_resource() throws InterruptedException {
         // execute manufacturer resource on device
-        ExecuteResponse response = helper.server.send(helper.getClient(), new ExecuteRequest(3, 0, 0));
+        ExecuteResponse response = helper.server.send(helper.getCurrentRegistration(), new ExecuteRequest(3, 0, 0));
 
         // verify result
         assertEquals(ResponseCode.METHOD_NOT_ALLOWED, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     @Test
     public void cannot_execute_read_write_resource() throws InterruptedException {
         // execute current time resource on device
-        ExecuteResponse response = helper.server.send(helper.getClient(), new ExecuteRequest(3, 0, 13));
+        ExecuteResponse response = helper.server.send(helper.getCurrentRegistration(), new ExecuteRequest(3, 0, 13));
 
         // verify result
         assertEquals(ResponseCode.METHOD_NOT_ALLOWED, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     @Test
     public void cannot_execute_nonexisting_resource_on_existing_object() throws InterruptedException {
         final int nonExistingResourceId = 9999;
         // execute non existing resource on device
-        ExecuteResponse response = helper.server.send(helper.getClient(), new ExecuteRequest(3, 0,
+        ExecuteResponse response = helper.server.send(helper.getCurrentRegistration(), new ExecuteRequest(3, 0,
                 nonExistingResourceId));
 
         // verify result
         assertEquals(ResponseCode.NOT_FOUND, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     @Test
     public void cannot_execute_nonexisting_resource_on_non_existing_object() throws InterruptedException {
         final int nonExistingObjectId = 9999;
         ExecuteResponse response = helper.server
-                .send(helper.getClient(), new ExecuteRequest(nonExistingObjectId, 0, 0));
+                .send(helper.getCurrentRegistration(), new ExecuteRequest(nonExistingObjectId, 0, 0));
 
         // verify result
         assertEquals(ResponseCode.NOT_FOUND, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     @Test
     public void cannot_execute_security_object() throws InterruptedException {
-        ExecuteResponse response = helper.server.send(helper.getClient(), new ExecuteRequest(0, 0, 0));
+        ExecuteResponse response = helper.server.send(helper.getCurrentRegistration(), new ExecuteRequest(0, 0, 0));
 
         // verify result
         assertEquals(ResponseCode.NOT_FOUND, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     @Test
     public void can_execute_resource() throws InterruptedException {
         // execute reboot resource on device
-        ExecuteResponse response = helper.server.send(helper.getClient(), new ExecuteRequest(3, 0, 4));
+        ExecuteResponse response = helper.server.send(helper.getCurrentRegistration(), new ExecuteRequest(3, 0, 4));
 
         // verify result
         assertEquals(ResponseCode.CHANGED, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     @Test
     public void can_execute_resource_with_parameters() throws InterruptedException {
         // execute reboot after 60 seconds on device
-        ExecuteResponse response = helper.server.send(helper.getClient(), new ExecuteRequest(3, 0, 4, "60"));
+        ExecuteResponse response = helper.server.send(helper.getCurrentRegistration(), new ExecuteRequest(3, 0, 4, "60"));
 
         // verify result
         assertEquals(ResponseCode.CHANGED, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
-
 }

@@ -36,7 +36,7 @@ import org.eclipse.leshan.core.request.ObserveRequest;
 import org.eclipse.leshan.core.request.ReadRequest;
 import org.eclipse.leshan.core.request.WriteRequest;
 import org.eclipse.leshan.core.request.WriteRequest.Mode;
-import org.eclipse.leshan.core.request.exception.RequestFailedException;
+import org.eclipse.leshan.core.request.exception.RequestRejectedException;
 import org.eclipse.leshan.core.request.exception.ResourceAccessException;
 import org.eclipse.leshan.core.response.CreateResponse;
 import org.eclipse.leshan.core.response.DeleteResponse;
@@ -46,8 +46,8 @@ import org.eclipse.leshan.core.response.ObserveResponse;
 import org.eclipse.leshan.core.response.ReadResponse;
 import org.eclipse.leshan.core.response.WriteResponse;
 import org.eclipse.leshan.server.LwM2mServer;
-import org.eclipse.leshan.server.client.Client;
-import org.eclipse.leshan.server.demo.servlet.json.ClientSerializer;
+import org.eclipse.leshan.server.client.Registration;
+import org.eclipse.leshan.server.demo.servlet.json.RegistrationSerializer;
 import org.eclipse.leshan.server.demo.servlet.json.LwM2mNodeDeserializer;
 import org.eclipse.leshan.server.demo.servlet.json.LwM2mNodeSerializer;
 import org.eclipse.leshan.server.demo.servlet.json.ResponseSerializer;
@@ -79,7 +79,7 @@ public class ClientServlet extends HttpServlet {
         this.server = server;
 
         GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeHierarchyAdapter(Client.class, new ClientSerializer(securePort));
+        gsonBuilder.registerTypeHierarchyAdapter(Registration.class, new RegistrationSerializer(securePort));
         gsonBuilder.registerTypeHierarchyAdapter(LwM2mResponse.class, new ResponseSerializer());
         gsonBuilder.registerTypeHierarchyAdapter(LwM2mNode.class, new LwM2mNodeSerializer());
         gsonBuilder.registerTypeHierarchyAdapter(LwM2mNode.class, new LwM2mNodeDeserializer());
@@ -95,9 +95,9 @@ public class ClientServlet extends HttpServlet {
 
         // all registered clients
         if (req.getPathInfo() == null) {
-            Collection<Client> clients = server.getClientRegistry().allClients();
+            Collection<Registration> registrations = server.getRegistrationService().getAllRegistrations();
 
-            String json = this.gson.toJson(clients.toArray(new Client[] {}));
+            String json = this.gson.toJson(registrations.toArray(new Registration[] {}));
             resp.setContentType("application/json");
             resp.getOutputStream().write(json.getBytes("UTF-8"));
             resp.setStatus(HttpServletResponse.SC_OK);
@@ -113,10 +113,10 @@ public class ClientServlet extends HttpServlet {
 
         // /endPoint : get client
         if (path.length == 1) {
-            Client client = server.getClientRegistry().get(clientEndpoint);
-            if (client != null) {
+            Registration registration = server.getRegistrationService().getByEndpoint(clientEndpoint);
+            if (registration != null) {
                 resp.setContentType("application/json");
-                resp.getOutputStream().write(this.gson.toJson(client).getBytes("UTF-8"));
+                resp.getOutputStream().write(this.gson.toJson(registration).getBytes("UTF-8"));
                 resp.setStatus(HttpServletResponse.SC_OK);
             } else {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -128,8 +128,8 @@ public class ClientServlet extends HttpServlet {
         // /clients/endPoint/LWRequest : do LightWeight M2M read request on a given client.
         try {
             String target = StringUtils.removeStart(req.getPathInfo(), "/" + clientEndpoint);
-            Client client = server.getClientRegistry().get(clientEndpoint);
-            if (client != null) {
+            Registration registration = server.getRegistrationService().getByEndpoint(clientEndpoint);
+            if (registration != null) {
                 // get content format
                 String contentFormatParam = req.getParameter(FORMAT_PARAM);
                 ContentFormat contentFormat = contentFormatParam != null
@@ -137,17 +137,17 @@ public class ClientServlet extends HttpServlet {
 
                 // create & process request
                 ReadRequest request = new ReadRequest(contentFormat, target);
-                ReadResponse cResponse = server.send(client, request, TIMEOUT);
+                ReadResponse cResponse = server.send(registration, request, TIMEOUT);
                 processDeviceResponse(req, resp, cResponse);
             } else {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().format("No registered client with id '%s'", clientEndpoint).flush();
             }
         } catch (IllegalArgumentException e) {
-            LOG.warn("Invalid request", e);
+            LOG.warn("Invalid request or response", e);
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().append(e.getMessage()).flush();
-        } catch (ResourceAccessException | RequestFailedException e) {
+        } catch (ResourceAccessException | RequestRejectedException e) {
             LOG.warn(String.format("Error accessing resource %s%s.", req.getServletPath(), req.getPathInfo()), e);
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().append(e.getMessage()).flush();
@@ -174,8 +174,8 @@ public class ClientServlet extends HttpServlet {
 
         try {
             String target = StringUtils.removeStart(req.getPathInfo(), "/" + clientEndpoint);
-            Client client = server.getClientRegistry().get(clientEndpoint);
-            if (client != null) {
+            Registration registration = server.getRegistrationService().getByEndpoint(clientEndpoint);
+            if (registration != null) {
                 // get content format
                 String contentFormatParam = req.getParameter(FORMAT_PARAM);
                 ContentFormat contentFormat = contentFormatParam != null
@@ -184,17 +184,17 @@ public class ClientServlet extends HttpServlet {
                 // create & process request
                 LwM2mNode node = extractLwM2mNode(target, req);
                 WriteRequest request = new WriteRequest(Mode.REPLACE, contentFormat, target, node);
-                WriteResponse cResponse = server.send(client, request, TIMEOUT);
+                WriteResponse cResponse = server.send(registration, request, TIMEOUT);
                 processDeviceResponse(req, resp, cResponse);
             } else {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().format("No registered client with id '%s'", clientEndpoint).flush();
             }
         } catch (IllegalArgumentException e) {
-            LOG.warn("Invalid request", e);
+            LOG.warn("Invalid request or response", e);
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().append(e.getMessage()).flush();
-        } catch (ResourceAccessException | RequestFailedException e) {
+        } catch (ResourceAccessException | RequestRejectedException e) {
             LOG.warn(String.format("Error accessing resource %s%s.", req.getServletPath(), req.getPathInfo()), e);
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().append(e.getMessage()).flush();
@@ -217,8 +217,8 @@ public class ClientServlet extends HttpServlet {
         if (path.length >= 4 && "observe".equals(path[path.length - 1])) {
             try {
                 String target = StringUtils.substringBetween(req.getPathInfo(), clientEndpoint, "/observe");
-                Client client = server.getClientRegistry().get(clientEndpoint);
-                if (client != null) {
+                Registration registration = server.getRegistrationService().getByEndpoint(clientEndpoint);
+                if (registration != null) {
                     // get content format
                     String contentFormatParam = req.getParameter(FORMAT_PARAM);
                     ContentFormat contentFormat = contentFormatParam != null
@@ -226,17 +226,17 @@ public class ClientServlet extends HttpServlet {
 
                     // create & process request
                     ObserveRequest request = new ObserveRequest(contentFormat, target);
-                    ObserveResponse cResponse = server.send(client, request, TIMEOUT);
+                    ObserveResponse cResponse = server.send(registration, request, TIMEOUT);
                     processDeviceResponse(req, resp, cResponse);
                 } else {
                     resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     resp.getWriter().format("no registered client with id '%s'", clientEndpoint).flush();
                 }
             } catch (IllegalArgumentException e) {
-                LOG.warn("Invalid request", e);
+                LOG.warn("Invalid request or response", e);
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().append(e.getMessage()).flush();
-            } catch (ResourceAccessException | RequestFailedException e) {
+            } catch (ResourceAccessException | RequestRejectedException e) {
                 LOG.warn(String.format("Error accessing resource %s%s.", req.getServletPath(), req.getPathInfo()), e);
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 resp.getWriter().append(e.getMessage()).flush();
@@ -253,20 +253,20 @@ public class ClientServlet extends HttpServlet {
         // /clients/endPoint/LWRequest : do LightWeight M2M execute request on a given client.
         if (path.length == 4) {
             try {
-                Client client = server.getClientRegistry().get(clientEndpoint);
-                if (client != null) {
+                Registration registration = server.getRegistrationService().getByEndpoint(clientEndpoint);
+                if (registration != null) {
                     ExecuteRequest request = new ExecuteRequest(target, IOUtils.toString(req.getInputStream()));
-                    ExecuteResponse cResponse = server.send(client, request, TIMEOUT);
+                    ExecuteResponse cResponse = server.send(registration, request, TIMEOUT);
                     processDeviceResponse(req, resp, cResponse);
                 } else {
                     resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     resp.getWriter().format("no registered client with id '%s'", clientEndpoint).flush();
                 }
             } catch (IllegalArgumentException e) {
-                LOG.warn("Invalid request", e);
+                LOG.warn("Invalid request or response", e);
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().append(e.getMessage()).flush();
-            } catch (ResourceAccessException | RequestFailedException e) {
+            } catch (ResourceAccessException | RequestRejectedException e) {
                 LOG.warn(String.format("Error accessing resource %s%s.", req.getServletPath(), req.getPathInfo()), e);
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 resp.getWriter().append(e.getMessage()).flush();
@@ -281,8 +281,8 @@ public class ClientServlet extends HttpServlet {
         // /clients/endPoint/LWRequest : do LightWeight M2M create request on a given client.
         if (2 <= path.length && path.length <= 3) {
             try {
-                Client client = server.getClientRegistry().get(clientEndpoint);
-                if (client != null) {
+                Registration registration = server.getRegistrationService().getByEndpoint(clientEndpoint);
+                if (registration != null) {
                     // get content format
                     String contentFormatParam = req.getParameter(FORMAT_PARAM);
                     ContentFormat contentFormat = contentFormatParam != null
@@ -292,7 +292,7 @@ public class ClientServlet extends HttpServlet {
                     LwM2mNode node = extractLwM2mNode(target, req);
                     if (node instanceof LwM2mObjectInstance) {
                         CreateRequest request = new CreateRequest(contentFormat, target, (LwM2mObjectInstance) node);
-                        CreateResponse cResponse = server.send(client, request, TIMEOUT);
+                        CreateResponse cResponse = server.send(registration, request, TIMEOUT);
                         processDeviceResponse(req, resp, cResponse);
                     } else {
                         throw new IllegalArgumentException("payload must contain an object instance");
@@ -302,10 +302,10 @@ public class ClientServlet extends HttpServlet {
                     resp.getWriter().format("no registered client with id '%s'", clientEndpoint).flush();
                 }
             } catch (IllegalArgumentException e) {
-                LOG.warn("Invalid request", e);
+                LOG.warn("Invalid request or response", e);
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().append(e.getMessage()).flush();
-            } catch (ResourceAccessException | RequestFailedException e) {
+            } catch (ResourceAccessException | RequestRejectedException e) {
                 LOG.warn(String.format("Error accessing resource %s%s.", req.getServletPath(), req.getPathInfo()), e);
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 resp.getWriter().append(e.getMessage()).flush();
@@ -327,19 +327,19 @@ public class ClientServlet extends HttpServlet {
         if (path.length >= 4 && "observe".equals(path[path.length - 1])) {
             try {
                 String target = StringUtils.substringsBetween(req.getPathInfo(), clientEndpoint, "/observe")[0];
-                Client client = server.getClientRegistry().get(clientEndpoint);
-                if (client != null) {
-                    server.getObservationRegistry().cancelObservations(client, target);
+                Registration registration = server.getRegistrationService().getByEndpoint(clientEndpoint);
+                if (registration != null) {
+                    server.getObservationService().cancelObservations(registration, target);
                     resp.setStatus(HttpServletResponse.SC_OK);
                 } else {
                     resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     resp.getWriter().format("no registered client with id '%s'", clientEndpoint).flush();
                 }
             } catch (IllegalArgumentException e) {
-                LOG.warn("Invalid request", e);
+                LOG.warn("Invalid request or response", e);
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().append(e.getMessage()).flush();
-            } catch (ResourceAccessException | RequestFailedException e) {
+            } catch (ResourceAccessException | RequestRejectedException e) {
                 LOG.warn(String.format("Error accessing resource %s%s.", req.getServletPath(), req.getPathInfo()), e);
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 resp.getWriter().append(e.getMessage()).flush();
@@ -350,20 +350,20 @@ public class ClientServlet extends HttpServlet {
         // /clients/endPoint/LWRequest/ : delete instance
         try {
             String target = StringUtils.removeStart(req.getPathInfo(), "/" + clientEndpoint);
-            Client client = server.getClientRegistry().get(clientEndpoint);
-            if (client != null) {
+            Registration registration = server.getRegistrationService().getByEndpoint(clientEndpoint);
+            if (registration != null) {
                 DeleteRequest request = new DeleteRequest(target);
-                DeleteResponse cResponse = server.send(client, request, TIMEOUT);
+                DeleteResponse cResponse = server.send(registration, request, TIMEOUT);
                 processDeviceResponse(req, resp, cResponse);
             } else {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().format("no registered client with id '%s'", clientEndpoint).flush();
             }
         } catch (IllegalArgumentException e) {
-            LOG.warn("Invalid request", e);
+            LOG.warn("Invalid request or response", e);
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().append(e.getMessage()).flush();
-        } catch (ResourceAccessException | RequestFailedException e) {
+        } catch (ResourceAccessException | RequestRejectedException  e) {
             LOG.warn(String.format("Error accessing resource %s%s.", req.getServletPath(), req.getPathInfo()), e);
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().append(e.getMessage()).flush();

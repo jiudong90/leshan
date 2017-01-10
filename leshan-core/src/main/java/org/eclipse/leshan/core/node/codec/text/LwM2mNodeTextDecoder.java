@@ -23,6 +23,7 @@ import org.eclipse.leshan.core.model.ResourceModel.Type;
 import org.eclipse.leshan.core.node.LwM2mNode;
 import org.eclipse.leshan.core.node.LwM2mPath;
 import org.eclipse.leshan.core.node.LwM2mSingleResource;
+import org.eclipse.leshan.core.node.ObjectLink;
 import org.eclipse.leshan.core.node.codec.InvalidValueException;
 import org.eclipse.leshan.util.Charsets;
 import org.eclipse.leshan.util.Validate;
@@ -37,7 +38,7 @@ public class LwM2mNodeTextDecoder {
         Validate.notNull(path.getResourceId());
         ResourceModel rDesc = model.getResourceModel(path.getObjectId(), path.getResourceId());
 
-        String strValue = new String(content, Charsets.UTF_8);
+        String strValue = content != null ? new String(content, Charsets.UTF_8) : "";
         if (rDesc != null && rDesc.type != null) {
             return LwM2mSingleResource.newResource(path.getResourceId(), parseTextValue(strValue, rDesc.type, path),
                     rDesc.type);
@@ -79,6 +80,15 @@ public class LwM2mNodeTextDecoder {
             case TIME:
                 // number of seconds since 1970/1/1
                 return new Date(Long.valueOf(value) * 1000L);
+            case OBJLNK:
+                String[] intArr = value.split(":");
+                if (intArr.length != 2)
+                    throw new InvalidValueException("Invalid value for objectLink resource: " + value, path);
+                try {
+                    return new ObjectLink(Integer.parseInt(intArr[0]), Integer.parseInt(intArr[1]));
+                } catch (NumberFormatException e) {
+                    throw new InvalidValueException("Invalid value for objectLinkresource: " + value, path);
+                }
             case OPAQUE:
                 // not specified
             default:

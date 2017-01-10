@@ -19,8 +19,7 @@
  *******************************************************************************/
 package org.eclipse.leshan.client.californium.impl;
 
-import static org.eclipse.leshan.client.californium.impl.ResourceUtil.extractServerIdentity;
-import static org.eclipse.leshan.client.californium.impl.ResourceUtil.fromLwM2mCode;
+import static org.eclipse.leshan.client.californium.impl.ResourceUtil.*;
 
 import java.util.List;
 
@@ -37,7 +36,6 @@ import org.eclipse.leshan.client.request.ServerIdentity;
 import org.eclipse.leshan.client.resource.LwM2mObjectEnabler;
 import org.eclipse.leshan.client.resource.NotifySender;
 import org.eclipse.leshan.client.servers.BootstrapHandler;
-import org.eclipse.leshan.client.util.ObserveSpecParser;
 import org.eclipse.leshan.core.model.LwM2mModel;
 import org.eclipse.leshan.core.node.LwM2mNode;
 import org.eclipse.leshan.core.node.LwM2mObjectInstance;
@@ -168,7 +166,7 @@ public class ObjectResource extends CoapResource implements NotifySender {
         ObserveSpec spec = null;
         if (coapExchange.advanced().getRequest().getOptions().getURIQueryCount() != 0) {
             final List<String> uriQueries = coapExchange.advanced().getRequest().getOptions().getUriQuery();
-            spec = ObserveSpecParser.parse(uriQueries);
+            spec = ObserveSpec.parse(uriQueries);
         }
 
         // Manage Write Attributes Request
@@ -181,6 +179,12 @@ public class ObjectResource extends CoapResource implements NotifySender {
         // Manage Write and Bootstrap Write Request (replace)
         else {
             LwM2mPath path = new LwM2mPath(URI);
+
+            if (!coapExchange.getRequestOptions().hasContentFormat()) {
+                coapExchange.respond(ResponseCode.BAD_REQUEST, "Content Format is mandatory");
+                return;
+            }
+
             ContentFormat contentFormat = ContentFormat.fromCode(coapExchange.getRequestOptions().getContentFormat());
             if (!decoder.isSupported(contentFormat)) {
                 coapExchange.respond(ResponseCode.UNSUPPORTED_CONTENT_FORMAT);
@@ -219,13 +223,19 @@ public class ObjectResource extends CoapResource implements NotifySender {
 
         // Manage Execute Request
         if (path.isResource()) {
+            byte[] payload = exchange.getRequestPayload();
             ExecuteResponse response = nodeEnabler.execute(identity,
-                    new ExecuteRequest(URI, new String(exchange.getRequestPayload())));
+                    new ExecuteRequest(URI, payload != null ? new String(payload) : null));
             exchange.respond(fromLwM2mCode(response.getCode()), response.getErrorMessage());
             return;
         }
 
         // handle content format for Write (Update) and Create request
+        if (!exchange.getRequestOptions().hasContentFormat()) {
+            exchange.respond(ResponseCode.BAD_REQUEST, "Content Format is mandatory");
+            return;
+        }
+
         ContentFormat contentFormat = ContentFormat.fromCode(exchange.getRequestOptions().getContentFormat());
         if (!decoder.isSupported(contentFormat)) {
             exchange.respond(ResponseCode.UNSUPPORTED_CONTENT_FORMAT);

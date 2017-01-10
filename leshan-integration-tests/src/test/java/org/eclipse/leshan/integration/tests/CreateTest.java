@@ -17,10 +17,13 @@
 
 package org.eclipse.leshan.integration.tests;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 
+import org.eclipse.californium.core.coap.Response;
 import org.eclipse.leshan.ResponseCode;
 import org.eclipse.leshan.core.node.LwM2mObjectInstance;
 import org.eclipse.leshan.core.node.LwM2mResource;
@@ -41,6 +44,7 @@ public class CreateTest {
 
     @Before
     public void start() {
+        helper.initialize();
         helper.createServer();
         helper.server.start();
         helper.createClient();
@@ -52,25 +56,30 @@ public class CreateTest {
     public void stop() {
         helper.client.stop(false);
         helper.server.stop();
+        helper.dispose();
     }
 
     @Test
     public void can_create_instance_of_object_without_instance_id() throws InterruptedException {
         // create ACL instance
-        CreateResponse response = helper.server.send(helper.getClient(), new CreateRequest(2,
+        CreateResponse response = helper.server.send(helper.getCurrentRegistration(), new CreateRequest(2,
                 new LwM2mResource[] { LwM2mSingleResource.newIntegerResource(0, 123) }));
 
         // verify result
         assertEquals(ResponseCode.CREATED, response.getCode());
         assertEquals("2/0", response.getLocation());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
 
         // create a second ACL instance
-        response = helper.server.send(helper.getClient(), new CreateRequest(2,
+        response = helper.server.send(helper.getCurrentRegistration(), new CreateRequest(2,
                 new LwM2mResource[] { LwM2mSingleResource.newIntegerResource(0, 123) }));
 
         // verify result
         assertEquals(ResponseCode.CREATED, response.getCode());
         assertEquals("2/1", response.getLocation());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
 
     }
 
@@ -79,11 +88,13 @@ public class CreateTest {
         // create ACL instance
         LwM2mObjectInstance instance = new LwM2mObjectInstance(12,
                 Arrays.<LwM2mResource> asList(LwM2mSingleResource.newIntegerResource(3, 123)));
-        CreateResponse response = helper.server.send(helper.getClient(), new CreateRequest(2, instance));
+        CreateResponse response = helper.server.send(helper.getCurrentRegistration(), new CreateRequest(2, instance));
 
         // verify result
         assertEquals(ResponseCode.CREATED, response.getCode());
         assertEquals("2/12", response.getLocation());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     @Test
@@ -91,21 +102,26 @@ public class CreateTest {
         // create ACL instance
         LwM2mObjectInstance instance = new LwM2mObjectInstance(12,
                 Arrays.<LwM2mResource> asList(LwM2mSingleResource.newIntegerResource(3, 123)));
-        CreateResponse response = helper.server.send(helper.getClient(),
+        CreateResponse response = helper.server.send(helper.getCurrentRegistration(),
                 new CreateRequest(ContentFormat.JSON, 2, instance));
 
         // verify result
         assertEquals(ResponseCode.CREATED, response.getCode());
         assertEquals("2/12", response.getLocation());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     @Test
     public void cannot_create_instance_of_object() throws InterruptedException {
         // try to create an instance of object 50
-        CreateResponse response = helper.server.send(helper.getClient(), new CreateRequest(50, new LwM2mResource[0]));
+        CreateResponse response = helper.server.send(helper.getCurrentRegistration(),
+                new CreateRequest(50, new LwM2mResource[0]));
 
         // verify result
         assertEquals(ResponseCode.NOT_FOUND, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     // TODO not sure all the writable mandatory resource should be present
@@ -115,15 +131,20 @@ public class CreateTest {
     @Test
     public void cannot_create_instance_without_all_required_resources() throws InterruptedException {
         // create ACL instance
-        CreateResponse response = helper.server.send(helper.getClient(), new CreateRequest(2, new LwM2mResource[0]));
+        CreateResponse response = helper.server.send(helper.getCurrentRegistration(),
+                new CreateRequest(2, new LwM2mResource[0]));
 
         // verify result
         assertEquals(ResponseCode.BAD_REQUEST, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
 
         // try to read to check if the instance is not created
         // client registration
-        ReadResponse readResponse = helper.server.send(helper.getClient(), new ReadRequest(2, 0));
+        ReadResponse readResponse = helper.server.send(helper.getCurrentRegistration(), new ReadRequest(2, 0));
         assertEquals(ResponseCode.NOT_FOUND, readResponse.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     // TODO we must probably implement this.
@@ -134,15 +155,19 @@ public class CreateTest {
         LwM2mObjectInstance instance = new LwM2mObjectInstance(0, Arrays.<LwM2mResource> asList(
                 LwM2mSingleResource.newIntegerResource(3, 123), LwM2mSingleResource.newIntegerResource(50, 123)));
         CreateRequest request = new CreateRequest(2, instance);
-        CreateResponse response = helper.server.send(helper.getClient(), request);
+        CreateResponse response = helper.server.send(helper.getCurrentRegistration(), request);
 
         // verify result
         assertEquals(ResponseCode.BAD_REQUEST, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
 
         // try to read to check if the instance is not created
         // client registration
-        ReadResponse readResponse = helper.server.send(helper.getClient(), new ReadRequest(2, 0));
+        ReadResponse readResponse = helper.server.send(helper.getCurrentRegistration(), new ReadRequest(2, 0));
         assertEquals(ResponseCode.NOT_FOUND, readResponse.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     // TODO I'm not sure we can do use only writable resource on create
@@ -155,20 +180,24 @@ public class CreateTest {
     @Test
     public void cannot_create_mandatory_single_object() throws InterruptedException {
         // try to create another instance of device object
-        CreateResponse response = helper.server.send(helper.getClient(),
+        CreateResponse response = helper.server.send(helper.getCurrentRegistration(),
                 new CreateRequest(3, new LwM2mResource[] { LwM2mSingleResource.newIntegerResource(3, 123) }));
 
         // verify result
         assertEquals(ResponseCode.METHOD_NOT_ALLOWED, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     @Test
     public void cannot_create_instance_of_security_object() throws InterruptedException {
-        CreateResponse response = helper.server.send(helper.getClient(),
+        CreateResponse response = helper.server.send(helper.getCurrentRegistration(),
                 new CreateRequest(0, new LwM2mResource[] { LwM2mSingleResource.newStringResource(0, "new.dest") }));
 
         // verify result
         assertEquals(ResponseCode.NOT_FOUND, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
 }

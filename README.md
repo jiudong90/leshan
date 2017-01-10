@@ -2,7 +2,7 @@
 
 ![Leshan](https://eclipse.org/leshan/img/multicolor-leshan.png)
 
-[Leshan](https://eclipse.org/leshan) is a OMA Lightweight M2M server and client java implementation.
+[Eclipse Leshan™](https://eclipse.org/leshan) is an OMA Lightweight M2M server and client Java implementation.
 
 [What is OMA LWM2M ?](http://technical.openmobilealliance.org/Technical/release_program/lightweightM2M_v1_0.aspx)  
 [The specification](http://member.openmobilealliance.org/ftp/Public_documents/DM/LightweightM2M/).  
@@ -57,7 +57,7 @@ mvn clean install
 
 Run demo **server**:
 ```
-java -jar target/leshan-server-demo-*-SNAPSHOT-jar-with-dependencies.jar 
+java -jar leshan-server-demo/target/leshan-server-demo-*-SNAPSHOT-jar-with-dependencies.jar 
 ```
 
 Connect on Leshan demo UI: http://localhost:8080  
@@ -65,14 +65,14 @@ Leshan provides a very simple UI to get the list of connected clients and intera
 
 Now you can register a LWM2M client by running our **client** demo:
 ```
-java -jar target/leshan-client-demo-*-SNAPSHOT-jar-with-dependencies.jar 
+java -jar leshan-client-demo/target/leshan-client-demo-*-SNAPSHOT-jar-with-dependencies.jar 
 ```
 or trying the [Eclipse Wakaama](http://eclipse.org/wakaama) test client or script samples of its lua binding [lualwm2m] (https://github.com/sbernard31/lualwm2m).
 
 
 You can also try our **bootstrap** demo server:
 ```
-java -jar target/leshan-bsserver-demo-*-SNAPSHOT-jar-with-dependencies.jar 
+java -jar leshan-bsserver-demo/target/leshan-bsserver-demo-*-SNAPSHOT-jar-with-dependencies.jar 
 ```
 
 ![Leshan](https://eclipse.org/leshan/img/capture_for_github.png)

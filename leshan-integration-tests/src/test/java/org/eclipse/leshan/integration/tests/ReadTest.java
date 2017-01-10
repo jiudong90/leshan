@@ -17,12 +17,12 @@
 
 package org.eclipse.leshan.integration.tests;
 
-import static org.eclipse.leshan.ResponseCode.CONTENT;
-import static org.eclipse.leshan.ResponseCode.METHOD_NOT_ALLOWED;
-import static org.eclipse.leshan.ResponseCode.NOT_FOUND;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.eclipse.leshan.ResponseCode.*;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.junit.Assert.*;
 
+import org.eclipse.californium.core.coap.Response;
 import org.eclipse.leshan.core.node.LwM2mObject;
 import org.eclipse.leshan.core.node.LwM2mObjectInstance;
 import org.eclipse.leshan.core.node.LwM2mResource;
@@ -38,6 +38,7 @@ public class ReadTest {
 
     @Before
     public void start() {
+        helper.initialize();
         helper.createServer();
         helper.server.start();
         helper.createClient();
@@ -49,15 +50,18 @@ public class ReadTest {
     public void stop() {
         helper.client.stop(false);
         helper.server.stop();
+        helper.dispose();
     }
 
     @Test
     public void can_read_empty_object() throws InterruptedException {
         // read ACL object
-        ReadResponse response = helper.server.send(helper.getClient(), new ReadRequest(2));
+        ReadResponse response = helper.server.send(helper.getCurrentRegistration(), new ReadRequest(2));
 
         // verify result
         assertEquals(CONTENT, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
 
         LwM2mObject object = (LwM2mObject) response.getContent();
         assertEquals(2, object.getId());
@@ -67,10 +71,12 @@ public class ReadTest {
     @Test
     public void can_read_object() throws InterruptedException {
         // read device object
-        ReadResponse response = helper.server.send(helper.getClient(), new ReadRequest(3));
+        ReadResponse response = helper.server.send(helper.getCurrentRegistration(), new ReadRequest(3));
 
         // verify result
         assertEquals(CONTENT, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
 
         LwM2mObject object = (LwM2mObject) response.getContent();
         assertEquals(3, object.getId());
@@ -82,10 +88,12 @@ public class ReadTest {
     @Test
     public void can_read_object_instance() throws InterruptedException {
         // read device single instance
-        ReadResponse response = helper.server.send(helper.getClient(), new ReadRequest(3, 0));
+        ReadResponse response = helper.server.send(helper.getCurrentRegistration(), new ReadRequest(3, 0));
 
         // verify result
         assertEquals(CONTENT, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
 
         LwM2mObjectInstance instance = (LwM2mObjectInstance) response.getContent();
         assertEquals(0, instance.getId());
@@ -94,10 +102,12 @@ public class ReadTest {
     @Test
     public void can_read_resource() throws InterruptedException {
         // read device model number
-        ReadResponse response = helper.server.send(helper.getClient(), new ReadRequest(3, 0, 1));
+        ReadResponse response = helper.server.send(helper.getCurrentRegistration(), new ReadRequest(3, 0, 1));
 
         // verify result
         assertEquals(CONTENT, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
 
         LwM2mResource resource = (LwM2mResource) response.getContent();
         assertEquals(1, resource.getId());
@@ -107,45 +117,55 @@ public class ReadTest {
     @Test
     public void cannot_read_non_readable_resource() throws InterruptedException {
         // read device reboot resource
-        ReadResponse response = helper.server.send(helper.getClient(), new ReadRequest(3, 0, 4));
+        ReadResponse response = helper.server.send(helper.getCurrentRegistration(), new ReadRequest(3, 0, 4));
 
         // verify result
         assertEquals(METHOD_NOT_ALLOWED, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     @Test
     public void cannot_read_non_existent_object() throws InterruptedException {
         // read object "50"
-        ReadResponse response = helper.server.send(helper.getClient(), new ReadRequest(50));
+        ReadResponse response = helper.server.send(helper.getCurrentRegistration(), new ReadRequest(50));
 
         // verify result
         assertEquals(NOT_FOUND, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     @Test
     public void cannot_read_non_existent_instance() throws InterruptedException {
         // read 2nd Device resource
-        ReadResponse response = helper.server.send(helper.getClient(), new ReadRequest(3, 1));
+        ReadResponse response = helper.server.send(helper.getCurrentRegistration(), new ReadRequest(3, 1));
 
         // verify result
         assertEquals(NOT_FOUND, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     @Test
     public void cannot_read_non_existent_resource() throws InterruptedException {
         // read device 50 resource
-        ReadResponse response = helper.server.send(helper.getClient(), new ReadRequest(3, 0, 50));
+        ReadResponse response = helper.server.send(helper.getCurrentRegistration(), new ReadRequest(3, 0, 50));
 
         // verify result
         assertEquals(NOT_FOUND, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 
     @Test
     public void cannot_read_security_resource() throws InterruptedException {
         // read device 50 resource
-        ReadResponse response = helper.server.send(helper.getClient(), new ReadRequest(0, 0, 0));
+        ReadResponse response = helper.server.send(helper.getCurrentRegistration(), new ReadRequest(0, 0, 0));
 
         // verify result
         assertEquals(NOT_FOUND, response.getCode());
+        assertNotNull(response.getCoapResponse());
+        assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
     }
 }

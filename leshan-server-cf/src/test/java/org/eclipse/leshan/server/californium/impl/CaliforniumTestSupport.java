@@ -18,12 +18,14 @@ package org.eclipse.leshan.server.californium.impl;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
-import org.eclipse.leshan.server.client.Client;
+import org.eclipse.leshan.server.client.Registration;
 
 public class CaliforniumTestSupport {
 
-    public Client client;
+    public Registration registration;
     public InetAddress destination;
     public int destinationPort = 5000;
     public InetSocketAddress registrationAddress;
@@ -31,10 +33,18 @@ public class CaliforniumTestSupport {
     public void givenASimpleClient() throws UnknownHostException {
         registrationAddress = InetSocketAddress.createUnresolved("localhost", 5683);
 
-        Client.Builder builder = new Client.Builder("ID", "urn:client", InetAddress.getLocalHost(), 10000,
+        Registration.Builder builder = new Registration.Builder("ID", "urn:client", InetAddress.getLocalHost(), 10000,
                 registrationAddress);
 
-        client = builder.build();
+        registration = builder.build();
+    }
 
+    public static byte[] createToken() {
+        Random random = ThreadLocalRandom.current();
+        byte[] token;
+        token = new byte[random.nextInt(8) + 1];
+        // random value
+        random.nextBytes(token);
+        return token;
     }
 }

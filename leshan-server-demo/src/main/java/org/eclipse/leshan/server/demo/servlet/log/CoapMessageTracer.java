@@ -23,26 +23,26 @@ import org.eclipse.californium.core.coap.EmptyMessage;
 import org.eclipse.californium.core.coap.Request;
 import org.eclipse.californium.core.coap.Response;
 import org.eclipse.californium.core.network.interceptors.MessageInterceptor;
-import org.eclipse.leshan.server.client.Client;
-import org.eclipse.leshan.server.client.ClientRegistry;
+import org.eclipse.leshan.server.client.Registration;
+import org.eclipse.leshan.server.client.RegistrationService;
 
 public class CoapMessageTracer implements MessageInterceptor {
 
     private final Map<String, CoapMessageListener> listeners = new ConcurrentHashMap<>();
 
-    private final ClientRegistry registry;
+    private final RegistrationService registry;
 
     public void addListener(String endpoint, CoapMessageListener listener) {
-        Client client = registry.get(endpoint);
-        if (client != null) {
-            listeners.put(toStringAddress(client.getAddress(), client.getPort()), listener);
+        Registration registration = registry.getByEndpoint(endpoint);
+        if (registration != null) {
+            listeners.put(toStringAddress(registration.getAddress(), registration.getPort()), listener);
         }
     }
 
     public void removeListener(String endpoint) {
-        Client client = registry.get(endpoint);
-        if (client != null) {
-            listeners.remove(toStringAddress(client.getAddress(), client.getPort()));
+        Registration registration = registry.getByEndpoint(endpoint);
+        if (registration != null) {
+            listeners.remove(toStringAddress(registration.getAddress(), registration.getPort()));
         }
     }
 
@@ -50,7 +50,7 @@ public class CoapMessageTracer implements MessageInterceptor {
         return clientAddress.toString() + ":" + clientPort;
     }
 
-    public CoapMessageTracer(ClientRegistry registry) {
+    public CoapMessageTracer(RegistrationService registry) {
         this.registry = registry;
     }
 

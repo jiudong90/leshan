@@ -51,14 +51,19 @@ import org.eclipse.leshan.client.resource.LwM2mObjectEnabler;
 import org.eclipse.leshan.client.resource.ObjectsInitializer;
 import org.eclipse.leshan.core.request.BindingMode;
 import org.eclipse.leshan.server.californium.LeshanServerBuilder;
-import org.eclipse.leshan.server.impl.SecurityRegistryImpl;
+import org.eclipse.leshan.server.impl.InMemorySecurityStore;
+import org.eclipse.leshan.server.security.EditableSecurityStore;
 import org.eclipse.leshan.util.Charsets;
 import org.eclipse.leshan.util.Hex;
 
 public class SecureIntegrationTestHelper extends IntegrationTestHelper {
 
-    public final String pskIdentity = "Client_identity";
-    public final byte[] pskKey = Hex.decodeHex("73656372657450534b".toCharArray());
+    public static final String GOOD_PSK_ID = "Good_Client_identity";
+    public static final byte[] GOOD_PSK_KEY = Hex.decodeHex("73656372657450534b".toCharArray());
+    public static final String BAD_PSK_ID = "Bad_Client_identity";
+    public static final byte[] BAD_PSK_KEY = Hex.decodeHex("010101010101010101".toCharArray());
+    public static final String BAD_ENDPOINT = "bad_endpoint";
+
     public final PublicKey clientPublicKey;
     public final PrivateKey clientPrivateKey;
     public final PublicKey serverPublicKey;
@@ -76,12 +81,12 @@ public class SecureIntegrationTestHelper extends IntegrationTestHelper {
         // create client credentials
         try {
             // Get point values
-            byte[] publicX = Hex.decodeHex("89c048261979208666f2bfb188be1968fc9021c416ce12828c06f4e314c167b5"
-                    .toCharArray());
-            byte[] publicY = Hex.decodeHex("cbf1eb7587f08e01688d9ada4be859137ca49f79394bad9179326b3090967b68"
-                    .toCharArray());
-            byte[] privateS = Hex.decodeHex("e67b68d2aaeb6550f19d98cade3ad62b39532e02e6b422e1f7ea189dabaea5d2"
-                    .toCharArray());
+            byte[] publicX = Hex
+                    .decodeHex("89c048261979208666f2bfb188be1968fc9021c416ce12828c06f4e314c167b5".toCharArray());
+            byte[] publicY = Hex
+                    .decodeHex("cbf1eb7587f08e01688d9ada4be859137ca49f79394bad9179326b3090967b68".toCharArray());
+            byte[] privateS = Hex
+                    .decodeHex("e67b68d2aaeb6550f19d98cade3ad62b39532e02e6b422e1f7ea189dabaea5d2".toCharArray());
 
             // Get Elliptic Curve Parameter spec for secp256r1
             AlgorithmParameters algoParameters = AlgorithmParameters.getInstance("EC");
@@ -116,12 +121,12 @@ public class SecureIntegrationTestHelper extends IntegrationTestHelper {
         // create server credentials
         try {
             // Get point values
-            byte[] publicX = Hex.decodeHex("fcc28728c123b155be410fc1c0651da374fc6ebe7f96606e90d927d188894a73"
-                    .toCharArray());
-            byte[] publicY = Hex.decodeHex("d2ffaa73957d76984633fc1cc54d0b763ca0559a9dff9706e9f4557dacc3f52a"
-                    .toCharArray());
-            byte[] privateS = Hex.decodeHex("1dae121ba406802ef07c193c1ee4df91115aabd79c1ed7f4c0ef7ef6a5449400"
-                    .toCharArray());
+            byte[] publicX = Hex
+                    .decodeHex("fcc28728c123b155be410fc1c0651da374fc6ebe7f96606e90d927d188894a73".toCharArray());
+            byte[] publicY = Hex
+                    .decodeHex("d2ffaa73957d76984633fc1cc54d0b763ca0559a9dff9706e9f4557dacc3f52a".toCharArray());
+            byte[] privateS = Hex
+                    .decodeHex("1dae121ba406802ef07c193c1ee4df91115aabd79c1ed7f4c0ef7ef6a5449400".toCharArray());
 
             // Get Elliptic Curve Parameter spec for secp256r1
             AlgorithmParameters algoParameters = AlgorithmParameters.getInstance("EC");
@@ -156,17 +161,18 @@ public class SecureIntegrationTestHelper extends IntegrationTestHelper {
 
     public void createPSKClient() {
         ObjectsInitializer initializer = new ObjectsInitializer();
-        initializer.setInstancesForObject(
-                LwM2mId.SECURITY,
-                Security.psk("coaps://" + server.getSecureAddress().getHostString() + ":"
-                        + server.getSecureAddress().getPort(), 12345, pskIdentity.getBytes(Charsets.UTF_8), pskKey));
+        initializer.setInstancesForObject(LwM2mId.SECURITY,
+                Security.psk(
+                        "coaps://" + server.getSecureAddress().getHostString() + ":"
+                                + server.getSecureAddress().getPort(),
+                        12345, GOOD_PSK_ID.getBytes(Charsets.UTF_8), GOOD_PSK_KEY));
         initializer.setInstancesForObject(LwM2mId.SERVER, new Server(12345, LIFETIME, BindingMode.U, false));
         initializer.setInstancesForObject(LwM2mId.DEVICE, new Device("Eclipse Leshan", MODEL_NUMBER, "12345", "U"));
         List<LwM2mObjectEnabler> objects = initializer.createMandatory();
         objects.add(initializer.create(2));
 
         InetSocketAddress clientAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(), 0);
-        LeshanClientBuilder builder = new LeshanClientBuilder(ENDPOINT_IDENTIFIER);
+        LeshanClientBuilder builder = new LeshanClientBuilder(getCurrentEndpoint());
         builder.setLocalAddress(clientAddress.getHostString(), clientAddress.getPort());
         builder.setObjects(objects);
         client = builder.build();
@@ -175,11 +181,12 @@ public class SecureIntegrationTestHelper extends IntegrationTestHelper {
     // TODO implement RPK support for client
     public void createRPKClient() {
         ObjectsInitializer initializer = new ObjectsInitializer();
-        initializer.setInstancesForObject(
-                LwM2mId.SECURITY,
-                Security.rpk("coaps://" + server.getSecureAddress().getHostString() + ":"
-                        + server.getSecureAddress().getPort(), 12345, clientPublicKey.getEncoded(),
-                        clientPrivateKey.getEncoded(), serverPublicKey.getEncoded()));
+        initializer.setInstancesForObject(LwM2mId.SECURITY,
+                Security.rpk(
+                        "coaps://" + server.getSecureAddress().getHostString() + ":"
+                                + server.getSecureAddress().getPort(),
+                        12345, clientPublicKey.getEncoded(), clientPrivateKey.getEncoded(),
+                        serverPublicKey.getEncoded()));
         initializer.setInstancesForObject(LwM2mId.SERVER, new Server(12345, LIFETIME, BindingMode.U, false));
         initializer.setInstancesForObject(LwM2mId.DEVICE, new Device("Eclipse Leshan", MODEL_NUMBER, "12345", "U"));
         List<LwM2mObjectEnabler> objects = initializer.createMandatory();
@@ -194,7 +201,7 @@ public class SecureIntegrationTestHelper extends IntegrationTestHelper {
         CoapServer coapServer = new CoapServer();
         coapServer.addEndpoint(new CoapEndpoint(new DTLSConnector(config.build()), NetworkConfig.getStandard()));
 
-        LeshanClientBuilder builder = new LeshanClientBuilder(ENDPOINT_IDENTIFIER);
+        LeshanClientBuilder builder = new LeshanClientBuilder(getCurrentEndpoint());
         builder.setLocalAddress(clientAddress.getHostString(), clientAddress.getPort());
         builder.setObjects(objects);
         client = builder.build();
@@ -204,10 +211,9 @@ public class SecureIntegrationTestHelper extends IntegrationTestHelper {
     public void createX509CertClient(PrivateKey privatekey, Certificate[] trustedCertificates) {
         ObjectsInitializer initializer = new ObjectsInitializer();
         // TODO security instance with certificate info
-        initializer.setInstancesForObject(
-                LwM2mId.SECURITY,
-                Security.noSec("coaps://" + server.getSecureAddress().getHostString() + ":"
-                        + server.getSecureAddress().getPort(), 12345));
+        initializer.setInstancesForObject(LwM2mId.SECURITY, Security.noSec(
+                "coaps://" + server.getSecureAddress().getHostString() + ":" + server.getSecureAddress().getPort(),
+                12345));
         initializer.setInstancesForObject(LwM2mId.SERVER, new Server(12345, LIFETIME, BindingMode.U, false));
         initializer.setInstancesForObject(LwM2mId.DEVICE, new Device("Eclipse Leshan", MODEL_NUMBER, "12345", "U"));
         List<LwM2mObjectEnabler> objects = initializer.createMandatory();
@@ -222,7 +228,7 @@ public class SecureIntegrationTestHelper extends IntegrationTestHelper {
         CoapServer coapServer = new CoapServer();
         coapServer.addEndpoint(new CoapEndpoint(new DTLSConnector(config.build()), NetworkConfig.getStandard()));
 
-        LeshanClientBuilder builder = new LeshanClientBuilder(ENDPOINT_IDENTIFIER);
+        LeshanClientBuilder builder = new LeshanClientBuilder(getCurrentEndpoint());
         builder.setLocalAddress(clientAddress.getHostString(), clientAddress.getPort());
         builder.setObjects(objects);
         client = builder.build();
@@ -232,19 +238,9 @@ public class SecureIntegrationTestHelper extends IntegrationTestHelper {
         LeshanServerBuilder builder = new LeshanServerBuilder();
         builder.setLocalAddress(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
         builder.setLocalSecureAddress(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
-        builder.setSecurityRegistry(new SecurityRegistryImpl(serverPrivateKey, serverPublicKey) {
-            // TODO we should separate SecurityRegistryImpl in 2 registries :
-            // InMemorySecurityRegistry and PersistentSecurityRegistry
-            @Override
-            protected void loadFromFile() {
-                // do not load From File
-            }
-
-            @Override
-            protected void saveToFile() {
-                // do not save to file
-            }
-        });
+        builder.setPublicKey(serverPublicKey);
+        builder.setPrivateKey(serverPrivateKey);
+        builder.setSecurityStore(new InMemorySecurityStore());
 
         server = builder.build();
     }
@@ -253,22 +249,26 @@ public class SecureIntegrationTestHelper extends IntegrationTestHelper {
         LeshanServerBuilder builder = new LeshanServerBuilder();
         builder.setLocalAddress(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
         builder.setLocalSecureAddress(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
-
-        builder.setSecurityRegistry(new SecurityRegistryImpl(serverPrivateKeyFromCert, serverX509CertChain,
-                trustedCertificates) {
-            // TODO we should separate SecurityRegistryImpl in 2 registries :
-            // InMemorySecurityRegistry and PersistentSecurityRegistry
-            @Override
-            protected void loadFromFile() {
-                // do not load From File
-            }
-
-            @Override
-            protected void saveToFile() {
-                // do not save to file
-            }
-        });
+        builder.setPrivateKey(serverPrivateKeyFromCert);
+        builder.setCertificateChain(serverX509CertChain);
+        builder.setTrustedCertificates(trustedCertificates);
+        builder.setSecurityStore(new InMemorySecurityStore());
 
         server = builder.build();
+    }
+
+    public PublicKey getServerPublicKey() {
+        return serverPublicKey;
+    }
+
+    public EditableSecurityStore getSecurityStore() {
+        return (EditableSecurityStore) server.getSecurityStore();
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        getSecurityStore().remove(getCurrentEndpoint());
+        getSecurityStore().remove(BAD_ENDPOINT);
     }
 }

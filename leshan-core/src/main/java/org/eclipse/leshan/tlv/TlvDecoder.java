@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.eclipse.leshan.core.node.ObjectLink;
 import org.eclipse.leshan.tlv.Tlv.TlvType;
 import org.eclipse.leshan.util.Charsets;
 import org.eclipse.leshan.util.Hex;
@@ -182,6 +183,17 @@ public class TlvDecoder {
         } else {
             throw new TlvException("Invalid length for a time value: " + value.length);
         }
+    }
+
+    /**
+     * Decodes a byte array into a objlnk value.
+     */
+    public static ObjectLink decodeObjlnk(byte[] value) throws TlvException {
+        ByteBuffer bff = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
+        bff.put(value);
+        int val1 = bff.getShort(0) & 0xFFFF;
+        int val2 = bff.getShort(2) & 0xFFFF;
+        return new ObjectLink(val1, val2);
     }
 
     /**

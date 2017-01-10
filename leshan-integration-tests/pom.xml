@@ -19,7 +19,7 @@ Contributors:
     <parent>
         <groupId>org.eclipse.leshan</groupId>
         <artifactId>leshan</artifactId>
-        <version>0.1.11-M13-SNAPSHOT</version>
+        <version>0.1.11-M15-SNAPSHOT</version>
     </parent>
     <artifactId>leshan-integration-tests</artifactId>
     <name>leshan - integration tests</name>
@@ -31,6 +31,10 @@ Contributors:
         <dependency>
             <groupId>org.eclipse.leshan</groupId>
             <artifactId>leshan-server-cf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.leshan</groupId>
+            <artifactId>leshan-server-cluster</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.leshan</groupId>
@@ -61,8 +65,16 @@ Contributors:
                             src/test/resources/logging.properties
                         </java.util.logging.config.file>
                     </systemPropertyVariables>
+                    <excludes>
+                        <exclude>${test.exclusion.pattern}</exclude>
+                    </excludes>
+                    <environmentVariables>
+                        <REDIS_URI>${redis.uri}</REDIS_URI>
+                    </environmentVariables>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+    
+    
 </project>

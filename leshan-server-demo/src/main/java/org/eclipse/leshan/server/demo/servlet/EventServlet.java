@@ -17,7 +17,6 @@ package org.eclipse.leshan.server.demo.servlet;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,20 +24,20 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.californium.core.network.Endpoint;
 import org.eclipse.leshan.core.node.LwM2mNode;
-import org.eclipse.leshan.core.node.TimestampedLwM2mNode;
 import org.eclipse.leshan.core.observation.Observation;
+import org.eclipse.leshan.core.response.ObserveResponse;
 import org.eclipse.leshan.server.californium.impl.LeshanServer;
-import org.eclipse.leshan.server.client.Client;
-import org.eclipse.leshan.server.client.ClientRegistryListener;
-import org.eclipse.leshan.server.client.ClientUpdate;
-import org.eclipse.leshan.server.demo.servlet.json.ClientSerializer;
+import org.eclipse.leshan.server.client.Registration;
+import org.eclipse.leshan.server.client.RegistrationUpdate;
+import org.eclipse.leshan.server.client.RegistrationListener;
+import org.eclipse.leshan.server.demo.servlet.json.RegistrationSerializer;
 import org.eclipse.leshan.server.demo.servlet.json.LwM2mNodeSerializer;
 import org.eclipse.leshan.server.demo.servlet.log.CoapMessage;
 import org.eclipse.leshan.server.demo.servlet.log.CoapMessageListener;
 import org.eclipse.leshan.server.demo.servlet.log.CoapMessageTracer;
 import org.eclipse.leshan.server.demo.utils.EventSource;
 import org.eclipse.leshan.server.demo.utils.EventSourceServlet;
-import org.eclipse.leshan.server.observation.ObservationRegistryListener;
+import org.eclipse.leshan.server.observation.ObservationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,47 +71,48 @@ public class EventServlet extends EventSourceServlet {
     private Set<LeshanEventSource> eventSources = Collections
             .newSetFromMap(new ConcurrentHashMap<LeshanEventSource, Boolean>());
 
-    private final ClientRegistryListener clientRegistryListener = new ClientRegistryListener() {
+    private final RegistrationListener registrationListener = new RegistrationListener() {
 
         @Override
-        public void registered(Client client) {
-            String jClient = EventServlet.this.gson.toJson(client);
-            sendEvent(EVENT_REGISTRATION, jClient, client.getEndpoint());
+        public void registered(Registration registration) {
+            String jReg = EventServlet.this.gson.toJson(registration);
+            sendEvent(EVENT_REGISTRATION, jReg, registration.getEndpoint());
         }
 
         @Override
-        public void updated(ClientUpdate update, Client clientUpdated) {
-            String jClient = EventServlet.this.gson.toJson(clientUpdated);
-            sendEvent(EVENT_UPDATED, jClient, clientUpdated.getEndpoint());
+        public void updated(RegistrationUpdate update, Registration updatedRegistration) {
+            String jReg = EventServlet.this.gson.toJson(updatedRegistration);
+            sendEvent(EVENT_UPDATED, jReg, updatedRegistration.getEndpoint());
         };
 
         @Override
-        public void unregistered(Client client) {
-            String jClient = EventServlet.this.gson.toJson(client);
-            sendEvent(EVENT_DEREGISTRATION, jClient, client.getEndpoint());
+        public void unregistered(Registration registration) {
+            String jReg = EventServlet.this.gson.toJson(registration);
+            sendEvent(EVENT_DEREGISTRATION, jReg, registration.getEndpoint());
         }
     };
 
-    private final ObservationRegistryListener observationRegistryListener = new ObservationRegistryListener() {
+    private final ObservationListener observationListener = new ObservationListener() {
 
         @Override
         public void cancelled(Observation observation) {
         }
 
         @Override
-        public void newValue(Observation observation, LwM2mNode value, List<TimestampedLwM2mNode> timestampedValues) {
+        public void newValue(Observation observation, ObserveResponse response) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Received notification from [{}] containing value [{}]", observation.getPath(),
-                        value.toString());
+                        response.getContent().toString());
             }
-            Client client = server.getClientRegistry().findByRegistrationId(observation.getRegistrationId());
+            Registration registration = server.getRegistrationService().getById(observation.getRegistrationId());
 
-            if (client != null) {
-                String data = new StringBuffer("{\"ep\":\"").append(client.getEndpoint()).append("\",\"res\":\"")
-                        .append(observation.getPath().toString()).append("\",\"val\":").append(gson.toJson(value))
+            if (registration != null) {
+                String data = new StringBuffer("{\"ep\":\"").append(registration.getEndpoint()).append("\",\"res\":\"")
+                        .append(observation.getPath().toString()).append("\",\"val\":")
+                        .append(gson.toJson(response.getContent()))
                         .append("}").toString();
 
-                sendEvent(EVENT_NOTIFICATION, data, client.getEndpoint());
+                sendEvent(EVENT_NOTIFICATION, data, registration.getEndpoint());
             }
         }
 
@@ -123,17 +123,17 @@ public class EventServlet extends EventSourceServlet {
 
     public EventServlet(LeshanServer server, int securePort) {
         this.server = server;
-        server.getClientRegistry().addListener(this.clientRegistryListener);
-        server.getObservationRegistry().addListener(this.observationRegistryListener);
+        server.getRegistrationService().addListener(this.registrationListener);
+        server.getObservationService().addListener(this.observationListener);
 
         // add an interceptor to each endpoint to trace all CoAP messages
-        coapMessageTracer = new CoapMessageTracer(server.getClientRegistry());
+        coapMessageTracer = new CoapMessageTracer(server.getRegistrationService());
         for (Endpoint endpoint : server.getCoapServer().getEndpoints()) {
             endpoint.addInterceptor(coapMessageTracer);
         }
 
         GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeHierarchyAdapter(Client.class, new ClientSerializer(securePort));
+        gsonBuilder.registerTypeHierarchyAdapter(Registration.class, new RegistrationSerializer(securePort));
         gsonBuilder.registerTypeHierarchyAdapter(LwM2mNode.class, new LwM2mNodeSerializer());
         gsonBuilder.setDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
         this.gson = gsonBuilder.create();

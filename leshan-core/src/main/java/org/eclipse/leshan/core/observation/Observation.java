@@ -15,23 +15,33 @@
  *******************************************************************************/
 package org.eclipse.leshan.core.observation;
 
+import java.util.Map;
+
 import org.eclipse.leshan.core.node.LwM2mPath;
 
 /**
  * An observation of a resource provided by a LWM2M Client.
- * 
  */
 public class Observation {
 
     private byte[] id;
     private LwM2mPath path;
     private String registrationId;
+    private Map<String, String> context;
 
-    public Observation(byte[] id, String registrationId, LwM2mPath path) {
-        super();
+    /**
+     * Instantiates an {@link Observation} for the given node path.
+     * 
+     * @param id token identifier of the observation
+     * @param registrationId client's unique registration identifier.
+     * @param path resource path for which the observation is set.
+     * @param context additional information relative to this observation.
+     */
+    public Observation(byte[] id, String registrationId, LwM2mPath path, Map<String, String> context) {
         this.id = id;
         this.path = path;
         this.registrationId = registrationId;
+        this.context = context;
     }
 
     /**
@@ -59,4 +69,12 @@ public class Observation {
     public LwM2mPath getPath() {
         return path;
     }
+
+    /**
+     * @return the contextual information relative to this observation.
+     */
+    public Map<String, String> getContext() {
+        return context;
+    }
+
 }
