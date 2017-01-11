@@ -39,6 +39,13 @@ public interface LwM2mModelProvider {
      * @param registration the registered client
      * @return the list of object descriptions
      */
+<<<<<<< HEAD
     LwM2mModel getObjectModel(Registration registration);
+=======
+    LwM2mModel getObjectModel(Client client);
+    //zyj add
+    void reloadModel();
+    //zyj end
+>>>>>>> 6010b9d8a266a3552c4602d1369a6e679e423926
 
 }

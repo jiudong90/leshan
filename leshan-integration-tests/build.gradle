@@ -1,0 +1,7 @@
+
+description = 'leshan - integration tests'
+dependencies {
+  compile project(':leshan-server-cf')
+  compile project(':leshan-client-cf')
+    testCompile group: 'junit', name: 'junit', version:'4.11'
+}

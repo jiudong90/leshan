@@ -117,6 +117,11 @@ public class EventServlet extends EventSourceServlet {
         }
 
         @Override
+        public void newValue(Observation observation, byte[] payload) {
+            //not used here
+        }
+
+        @Override
         public void newObservation(Observation observation) {
         }
     };

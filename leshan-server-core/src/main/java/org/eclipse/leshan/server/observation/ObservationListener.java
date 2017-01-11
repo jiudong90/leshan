@@ -30,5 +30,10 @@ public interface ObservationListener {
      * @param observation the observation for which new data are received
      * @param reponse the lwm2m response received
      */
+<<<<<<< HEAD:leshan-server-core/src/main/java/org/eclipse/leshan/server/observation/ObservationListener.java
     void newValue(Observation observation, ObserveResponse response);
+=======
+    void newValue(Observation observation, LwM2mNode mostRecentValue, List<TimestampedLwM2mNode> timestampedValues);
+    void newValue(Observation observation, byte[] payload);
+>>>>>>> 6010b9d8a266a3552c4602d1369a6e679e423926:leshan-server-core/src/main/java/org/eclipse/leshan/server/observation/ObservationRegistryListener.java
 }

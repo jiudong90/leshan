@@ -23,7 +23,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.List;
+/import java.util.List;
 
 import org.eclipse.leshan.core.model.json.ObjectModelDeserializer;
 import org.eclipse.leshan.core.model.json.ResourceModelDeserializer;
@@ -66,6 +66,10 @@ public class ObjectLoader {
         // custom objects (environment variable)
         String modelsFolderEnvVar = System.getenv("MODELS_FOLDER");
         if (modelsFolderEnvVar != null) {
+            models.addAll(loadObjectsFromDir(new File(modelsFolderEnvVar)));
+        }else {
+            //modelsFolderEnvVar = "leshan-core/src/main/resources";
+            modelsFolderEnvVar = "leshan/leshan-core/src/main/resources";
             models.addAll(loadObjectsFromDir(new File(modelsFolderEnvVar)));
         }
 
@@ -139,6 +143,9 @@ public class ObjectLoader {
 
                 } else if (file.getName().endsWith(".json")) {
                     // from JSON file
+                    if (file.getName().equals("oma-objects-spec.json")) {
+                        continue;
+                    }
                     LOG.debug("Loading object models from JSON file {}", file.getAbsolutePath());
                     try (FileInputStream input = new FileInputStream(file)) {
                         models.addAll(loadJsonStream(input));

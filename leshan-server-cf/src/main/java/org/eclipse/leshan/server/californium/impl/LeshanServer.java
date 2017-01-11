@@ -23,7 +23,10 @@ import java.security.cert.X509Certificate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
+//zyj add begin
+import java.util.HashMap;
+import java.util.Map;
+//zyj add end
 import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.CoapServer;
 import org.eclipse.californium.core.coap.CoAP.ResponseCode;
@@ -98,6 +101,10 @@ public class LeshanServer implements LwM2mServer {
     private final CoapEndpoint secureEndpoint;
 
     private final CaliforniumRegistrationStore registrationStore;
+
+    //zyj add begin
+    private final RegistrationHandler regHandler;
+    //zyj add end
 
     /**
      * Initialize a server which will bind to the specified address and port.
@@ -192,8 +199,22 @@ public class LeshanServer implements LwM2mServer {
         coapServer.addEndpoint(secureEndpoint);
 
         // define /rd resource
+<<<<<<< HEAD
         final RegisterResource rdResource = new RegisterResource(
                 new RegistrationHandler(this.registrationService, authorizer));
+=======
+        //zyj add begin
+        Map<String, String> rule = new HashMap<>();
+        rule.put(String.valueOf(26001), "[A-Z]+-[a-zA-Z]+-[0-9]+");//set default rule before iotconnector ready
+        rule.put(String.valueOf(26002), "[a-zA-Z]+");
+        regHandler = new RegistrationHandler(this.clientRegistry, this.securityRegistry, rule);
+
+        final RegisterResource rdResource = new RegisterResource(regHandler);
+
+        //final RegisterResource rdResource = new RegisterResource(
+        //        new RegistrationHandler(this.clientRegistry, this.securityRegistry));
+        //zyj add end
+>>>>>>> 6010b9d8a266a3552c4602d1369a6e679e423926
         coapServer.add(rdResource);
 
         // create sender
@@ -290,6 +311,7 @@ public class LeshanServer implements LwM2mServer {
         requestSender.send(destination, request, responseCallback, errorCallback);
     }
 
+<<<<<<< HEAD
     @Override
     public <T extends LwM2mResponse> void send(Registration destination, String requestTicket, DownlinkRequest<T> request) {
         requestSender.send(destination, requestTicket, request);
@@ -304,6 +326,14 @@ public class LeshanServer implements LwM2mServer {
     public void removeResponseListener(ResponseListener listener) {
         requestSender.removeResponseListener(listener);
     }
+=======
+    //zyj add begin
+    @Override
+    public void setRegRule(Map<String, String> rule, int maxclients) {
+        regHandler.setAlinketRule(rule, maxclients);
+    }
+    //zyj add end
+>>>>>>> 6010b9d8a266a3552c4602d1369a6e679e423926
 
     /**
      * @return the underlying {@link CoapServer}

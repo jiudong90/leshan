@@ -26,6 +26,8 @@ import org.eclipse.leshan.server.observation.ObservationService;
 import org.eclipse.leshan.server.response.ResponseListener;
 import org.eclipse.leshan.server.security.SecurityStore;
 
+import java.util.Map;//zyj add
+
 /**
  * An OMA Lightweight M2M device management server.
  *
@@ -127,4 +129,8 @@ public interface LwM2mServer {
      */
     LwM2mModelProvider getModelProvider();
 
+    /**
+     * Set the registration rule, zyj add.
+     */
+    void setRegRule(Map<String, String> policy, int maxclients);
 }

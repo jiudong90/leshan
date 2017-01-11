@@ -1,0 +1,11 @@
+
+description = 'leshan - all'
+dependencies {
+//    compile project(':leshan-core')
+//    compile project(':leshan-server-core')
+//    compile project(':leshan-server-cf')
+//    compile project(':leshan-server-cluster')
+//    compile project(':leshan-server-demo')
+//    compile project(':leshan-client-core')
+//    compile project(':leshan-client-cf')
+}

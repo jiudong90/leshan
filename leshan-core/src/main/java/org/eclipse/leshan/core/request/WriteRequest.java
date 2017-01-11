@@ -325,7 +325,7 @@ public class WriteRequest extends AbstractDownlinkRequest<WriteResponse> {
 
         this.node = node;
         if (format == null) {
-            this.contentFormat = ContentFormat.TLV; // use TLV as default content type
+            this.contentFormat = ContentFormat.TEXT; // use TLV as default content type
         } else {
             this.contentFormat = format;
         }

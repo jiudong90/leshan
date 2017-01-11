@@ -1,0 +1,231 @@
+[
+  {
+    "id": 26001,
+    "name": "Baykee UPS: Regular Registers",
+    "instancetype": "single",
+    "mandatory": false,
+    "description": "This proprietary Object defines resources to describe regular power input/ouput measurements of Baykee UPS, EPS and INV devices.",
+    "resourcedefs": [
+      {
+        "id": 0,
+        "name": "Rectifier Input Voltage A",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "",
+        "units": "0.1V",
+        "description": "Rectifier Input Power Voltage: Phase A."
+      },
+      {
+        "id": 1,
+        "name": "Rectifier Input Voltage B",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "",
+        "units": "0.1V",
+        "description": "Rectifier Input Power Voltage: Phase B."
+      },
+      {
+        "id": 2,
+        "name": "Rectifier Input Voltage C",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "",
+        "units": "0.1V",
+        "description": "Rectifier Input Power Voltage: Phase C."
+      },
+      {
+        "id": 3,
+        "name": "Bypass Input Voltage A",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "",
+        "units": "0.1V",
+        "description": "Bypass Input Power Voltage: Phase A."
+      },
+      {
+        "id": 4,
+        "name": "Bypass Input Voltage B",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "",
+        "units": "0.1V",
+        "description": "Bypass Input Power Voltage: Phase B."
+      },
+      {
+        "id": 5,
+        "name": "Bypass Input Voltage C",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "",
+        "units": "0.1V",
+        "description": "Bypass Input Power Voltage: Phase C."
+      },
+      {
+        "id": 6,
+        "name": "Bypass Input Frequency",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "",
+        "units": "0.1Hz",
+        "description": "Bypass Input Frequency."
+      },
+      {
+        "id": 7,
+        "name": "Inverter Voltage A",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "",
+        "units": "0.1V",
+        "description": "Inverter Power Voltage: Phase A."
+      },
+      {
+        "id": 8,
+        "name": "Inverter Voltage B",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "",
+        "units": "0.1V",
+        "description": "Inverter Power Voltage: Phase B."
+      },
+      {
+        "id": 9,
+        "name": "Inverter Voltage C",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "",
+        "units": "0.1V",
+        "description": "Inverter Power Voltage: Phase C."
+      },
+      {
+        "id": 10,
+        "name": "Inverter Frequency",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "",
+        "units": "0.1Hz",
+        "description": "Inverter Frequency."
+      },
+      {
+        "id": 11,
+        "name": "Power Loading A",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "0-100",
+        "units": "%",
+        "description": "Power Loading: Phase A."
+      },
+      {
+        "id": 12,
+        "name": "Power Loading B",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "0-100",
+        "units": "%",
+        "description": "Power Loading: Phase B."
+      },
+      {
+        "id": 13,
+        "name": "Power Loading C",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "0-100",
+        "units": "%",
+        "description": "Power Loading: Phase C."
+      },
+      {
+        "id": 14,
+        "name": "Battery Power Voltage",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "",
+        "units": "0.1V",
+        "description": "Battery Power Voltage."
+      },
+      {
+        "id": 15,
+        "name": "Battery Charging Current",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "",
+        "units": "0.1A",
+        "description": "Battery Charging Current."
+      },
+      {
+        "id": 16,
+        "name": "Temperature",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "",
+        "units": "C",
+        "description": "UPS Device Temperature."
+      },
+      {
+        "id": 17,
+        "name": "DC Input Voltage",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "",
+        "units": "0.1V",
+        "description": "DC Input Voltage."
+      },
+      {
+        "id": 18,
+        "name": "Flag 1",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "",
+        "units": "",
+        "description": "Flag Indicator 1."
+      },
+      {
+        "id": 19,
+        "name": "Flag 2",
+        "operations": "R",
+        "instancetype": "single",
+        "mandatory": true,
+        "type": "integer",
+        "range": "",
+        "units": "",
+        "description": "Flag Indicator 2."
+      }
+    ]
+  }
+]

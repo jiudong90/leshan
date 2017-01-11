@@ -1,0 +1,11 @@
+
+description = 'leshan - server cluster'
+dependencies {
+  compile project(':leshan-core')
+  compile project(':leshan-server-cf')
+    compile group: 'redis.clients', name: 'jedis', version:'2.8.0'
+    compile group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version:'0.9.4'
+    runtime group: 'org.apache.logging.log4j', name: 'log4j-core', version:'2.1'
+    runtime group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version:'2.1'
+    testCompile group: 'junit', name: 'junit', version:'4.11'
+}
