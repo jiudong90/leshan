@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.leshan.LinkObject;
+import org.eclipse.leshan.Link;
 import org.eclipse.leshan.core.request.BindingMode;
 import org.eclipse.leshan.server.client.Registration;
 
@@ -51,7 +51,11 @@ public class RegistrationSerDes {
         o.add("regId", r.getId());
 
         JsonArray links = new JsonArray();
+<<<<<<< HEAD:leshan-server-cluster/src/main/java/org/eclipse/leshan/server/cluster/serialization/RegistrationSerDes.java
         for (LinkObject l : r.getObjectLinks()) {
+=======
+        for (Link l : r.getObjectLinks()) {
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897:leshan-server-cluster/src/main/java/org/eclipse/leshan/server/cluster/serialization/RegistrationSerDes.java
             JsonObject ol = Json.object();
             ol.add("url", l.getUrl());
             JsonObject at = Json.object();
@@ -99,7 +103,11 @@ public class RegistrationSerDes {
         }
 
         JsonArray links = (JsonArray) jObj.get("objLink");
+<<<<<<< HEAD:leshan-server-cluster/src/main/java/org/eclipse/leshan/server/cluster/serialization/RegistrationSerDes.java
         LinkObject[] linkObjs = new LinkObject[links.size()];
+=======
+        Link[] linkObjs = new Link[links.size()];
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897:leshan-server-cluster/src/main/java/org/eclipse/leshan/server/cluster/serialization/RegistrationSerDes.java
         for (int i = 0; i < links.size(); i++) {
             JsonObject ol = (JsonObject) links.get(i);
 
@@ -113,7 +121,7 @@ public class RegistrationSerDes {
                     attMap.put(k, jsonValue.asString());
                 }
             }
-            LinkObject o = new LinkObject(ol.getString("url", null), attMap);
+            Link o = new Link(ol.getString("url", null), attMap);
             linkObjs[i] = o;
         }
         b.objectLinks(linkObjs);

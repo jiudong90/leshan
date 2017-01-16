@@ -16,27 +16,24 @@
 package org.eclipse.leshan.client.californium.impl;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
-import org.eclipse.californium.core.coap.MessageObserverAdapter;
 import org.eclipse.californium.core.coap.Request;
 import org.eclipse.californium.core.coap.Response;
 import org.eclipse.californium.core.network.Endpoint;
 import org.eclipse.leshan.client.request.LwM2mClientRequestSender;
+import org.eclipse.leshan.core.californium.AsyncRequestObserver;
+import org.eclipse.leshan.core.californium.SyncRequestObserver;
 import org.eclipse.leshan.core.request.UplinkRequest;
+<<<<<<< HEAD
 import org.eclipse.leshan.core.request.exception.RequestCanceledException;
 import org.eclipse.leshan.core.request.exception.RequestRejectedException;
+=======
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 import org.eclipse.leshan.core.response.ErrorCallback;
 import org.eclipse.leshan.core.response.LwM2mResponse;
 import org.eclipse.leshan.core.response.ResponseCallback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CaliforniumLwM2mClientRequestSender implements LwM2mClientRequestSender {
-    private static final Logger LOG = LoggerFactory.getLogger(CaliforniumLwM2mClientRequestSender.class);
 
     private final Endpoint nonSecureEndpoint;
     private final Endpoint secureEndpoint;
@@ -116,6 +113,7 @@ public class CaliforniumLwM2mClientRequestSender implements LwM2mClientRequestSe
         else
             nonSecureEndpoint.sendRequest(coapRequest);
     }
+<<<<<<< HEAD
 
     // ////// Request Observer Class definition/////////////
     // TODO leshan-code-cf: All Request Observer should be factorize in a leshan-core-cf project.
@@ -241,4 +239,6 @@ public class CaliforniumLwM2mClientRequestSender implements LwM2mClientRequestSe
             return ref.get();
         }
     }
+=======
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 }

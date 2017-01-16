@@ -15,11 +15,12 @@
  *******************************************************************************/
 package org.eclipse.leshan.server.californium.impl;
 
-import org.eclipse.californium.core.coap.CoAP;
+import static org.eclipse.leshan.core.californium.ResponseCodeUtil.fromCoapCode;
+
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import org.eclipse.californium.core.coap.Request;
 import org.eclipse.californium.core.coap.Response;
-import org.eclipse.leshan.LinkObject;
+import org.eclipse.leshan.Link;
 import org.eclipse.leshan.ResponseCode;
 import org.eclipse.leshan.core.model.LwM2mModel;
 import org.eclipse.leshan.core.node.LwM2mNode;
@@ -54,7 +55,10 @@ import org.eclipse.leshan.core.response.ReadResponse;
 import org.eclipse.leshan.core.response.WriteAttributesResponse;
 import org.eclipse.leshan.core.response.WriteResponse;
 import org.eclipse.leshan.server.client.Registration;
+<<<<<<< HEAD
 import org.eclipse.leshan.util.Validate;
+=======
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +74,7 @@ public class LwM2mResponseBuilder<T extends LwM2mResponse> implements DownlinkRe
     private final LwM2mModel model;
     private final LwM2mNodeDecoder decoder;
 
+<<<<<<< HEAD
     // TODO leshan-code-cf: this code should be factorize in a leshan-core-cf project.
     // duplicate from org.eclipse.leshan.client.californium.impl.LwM2mClientResponseBuilder<T>
     public static ResponseCode fromCoapCode(final int code) {
@@ -104,6 +109,8 @@ public class LwM2mResponseBuilder<T extends LwM2mResponse> implements DownlinkRe
         }
     }
 
+=======
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
     public LwM2mResponseBuilder(final Request coapRequest, final Response coapResponse, final Registration registration,
             final LwM2mModel model, final ObservationServiceImpl observationService,
             final LwM2mNodeDecoder decoder) {
@@ -140,14 +147,14 @@ public class LwM2mResponseBuilder<T extends LwM2mResponse> implements DownlinkRe
     public void visit(final DiscoverRequest request) {
         switch (coapResponse.getCode()) {
         case CONTENT:
-            LinkObject[] links = null;
+            Link[] links = null;
             if (MediaTypeRegistry.APPLICATION_LINK_FORMAT != coapResponse.getOptions().getContentFormat()) {
                 LOG.debug("Expected LWM2M Client [{}] to return application/link-format [{}] content but got [{}]",
                         registration.getEndpoint(), MediaTypeRegistry.APPLICATION_LINK_FORMAT,
                         coapResponse.getOptions().getContentFormat());
-                links = new LinkObject[] {}; // empty list
+                links = new Link[] {}; // empty list
             } else {
-                links = LinkObject.parse(coapResponse.getPayload());
+                links = Link.parse(coapResponse.getPayload());
             }
             lwM2mresponse = new DiscoverResponse(ResponseCode.CONTENT, links, null, coapResponse);
             break;
@@ -351,6 +358,7 @@ public class LwM2mResponseBuilder<T extends LwM2mResponse> implements DownlinkRe
     private LwM2mNode decodeCoapResponse(final LwM2mPath path, final Response coapResponse) {
         LwM2mNode content;
         try {
+<<<<<<< HEAD
 
             content = decoder.decode(coapResponse.getPayload(),
                     ContentFormat.fromCode(coapResponse.getOptions().getContentFormat()), path, model);
@@ -358,6 +366,16 @@ public class LwM2mResponseBuilder<T extends LwM2mResponse> implements DownlinkRe
 //            LOG.debug("content format: {}", ContentFormat.fromCode(coapResponse.getOptions().getContentFormat()));
 //            LOG.debug("coap content format: {}",coapResponse.getOptions().getContentFormat());
 //            content = decoder.decode(coapResponse.getPayload(), ContentFormat.TEXT, path, model);
+=======
+            // get content format
+            ContentFormat contentFormat = null;
+            if (coapResponse.getOptions().hasContentFormat()) {
+                contentFormat = ContentFormat.fromCode(coapResponse.getOptions().getContentFormat());
+            }
+
+            // decode payload
+            content = decoder.decode(coapResponse.getPayload(), contentFormat, path, model);
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
         } catch (final InvalidValueException e) {
             final String msg = String.format("[%s] (%s:%s)", e.getMessage(), e.getPath().toString(),
                     coapResponse.getCode().toString());

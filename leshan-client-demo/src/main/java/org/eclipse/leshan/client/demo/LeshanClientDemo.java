@@ -220,8 +220,13 @@ public class LeshanClientDemo {
         initializer.setClassForObject(DEVICE, MyDevice.class);
         initializer.setClassForObject(16017, MicrosoftDevice.class);
         initializer.setInstancesForObject(LOCATION, locationInstance);
+<<<<<<< HEAD
 //        List<LwM2mObjectEnabler> enablers = initializer.create(SECURITY, SERVER, DEVICE, LOCATION);
         List<LwM2mObjectEnabler> enablers = initializer.create(SECURITY, SERVER, 16017);
+=======
+        initializer.setInstancesForObject(OBJECT_ID_TEMPERATURE_SENSOR, new RandomTemperatureSensor());
+        List<LwM2mObjectEnabler> enablers = initializer.create(SECURITY, SERVER, DEVICE, LOCATION, OBJECT_ID_TEMPERATURE_SENSOR);
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 
         // Create client
         LeshanClientBuilder builder = new LeshanClientBuilder(endpoint);

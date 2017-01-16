@@ -17,19 +17,27 @@ package org.eclipse.leshan.core.response;
 
 import java.util.Arrays;
 
-import org.eclipse.leshan.LinkObject;
+import org.eclipse.leshan.Link;
 import org.eclipse.leshan.ResponseCode;
 import org.eclipse.leshan.util.Validate;
 
 public class DiscoverResponse extends AbstractLwM2mResponse {
 
-    private final LinkObject[] links;
+    private final Link[] links;
 
+<<<<<<< HEAD
     public DiscoverResponse(ResponseCode code, LinkObject[] links, String errorMessage) {
         this(code, links, errorMessage, null);
     }
 
     public DiscoverResponse(ResponseCode code, LinkObject[] links, String errorMessage, Object coapResponse) {
+=======
+    public DiscoverResponse(ResponseCode code, Link[] links, String errorMessage) {
+        this(code, links, errorMessage, null);
+    }
+
+    public DiscoverResponse(ResponseCode code, Link[] links, String errorMessage, Object coapResponse) {
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
         super(code, errorMessage, coapResponse);
         if (ResponseCode.CONTENT.equals(code)) {
             Validate.notNull(links);
@@ -40,11 +48,11 @@ public class DiscoverResponse extends AbstractLwM2mResponse {
     }
 
     /**
-     * Get the list of {@link LinkObject} returned as response payload.
+     * Get the list of {@link Link} returned as response payload.
      *
      * @return the object links or <code>null</code> if the client returned an error response.
      */
-    public LinkObject[] getObjectLinks() {
+    public Link[] getObjectLinks() {
         return links != null ? links.clone() : null;
     }
 
@@ -63,7 +71,7 @@ public class DiscoverResponse extends AbstractLwM2mResponse {
 
     // Syntactic sugar static constructors :
 
-    public static DiscoverResponse success(LinkObject[] links) {
+    public static DiscoverResponse success(Link[] links) {
         return new DiscoverResponse(ResponseCode.CONTENT, links, null);
     }
 

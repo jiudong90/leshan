@@ -19,7 +19,12 @@
  *******************************************************************************/
 package org.eclipse.leshan.client.californium.impl;
 
+<<<<<<< HEAD
 import static org.eclipse.leshan.client.californium.impl.ResourceUtil.*;
+=======
+import static org.eclipse.leshan.client.californium.impl.ResourceUtil.extractServerIdentity;
+import static org.eclipse.leshan.core.californium.ResponseCodeUtil.fromLwM2mCode;
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 
 import java.util.List;
 
@@ -30,7 +35,7 @@ import org.eclipse.californium.core.coap.Response;
 import org.eclipse.californium.core.network.Exchange;
 import org.eclipse.californium.core.server.resources.CoapExchange;
 import org.eclipse.californium.core.server.resources.Resource;
-import org.eclipse.leshan.LinkObject;
+import org.eclipse.leshan.Link;
 import org.eclipse.leshan.ObserveSpec;
 import org.eclipse.leshan.client.request.ServerIdentity;
 import org.eclipse.leshan.client.resource.LwM2mObjectEnabler;
@@ -54,6 +59,7 @@ import org.eclipse.leshan.core.request.ReadRequest;
 import org.eclipse.leshan.core.request.WriteAttributesRequest;
 import org.eclipse.leshan.core.request.WriteRequest;
 import org.eclipse.leshan.core.request.WriteRequest.Mode;
+import org.eclipse.leshan.core.request.exception.InvalidRequestException;
 import org.eclipse.leshan.core.response.BootstrapWriteResponse;
 import org.eclipse.leshan.core.response.CreateResponse;
 import org.eclipse.leshan.core.response.DeleteResponse;
@@ -93,8 +99,17 @@ public class ObjectResource extends CoapResource implements NotifySender {
     public void handleRequest(Exchange exchange) {
         try {
             super.handleRequest(exchange);
+        } catch (InvalidRequestException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(String.format("InvalidRequestException while handling request(%s) on the %s resource",
+                        exchange.getRequest(), getURI()), e);
+            }
+            Response response = new Response(ResponseCode.BAD_REQUEST);
+            response.setPayload(e.getMessage());
+            exchange.sendResponse(response);
         } catch (Exception e) {
-            LOG.error(String.format("Exception while handling a request on the %s resource", getURI()), e);
+            LOG.error(String.format("Exception while handling request(%s) on the %s resource", exchange.getRequest(),
+                    getURI()), e);
             exchange.sendResponse(new Response(ResponseCode.INTERNAL_SERVER_ERROR));
         }
     }
@@ -110,7 +125,7 @@ public class ObjectResource extends CoapResource implements NotifySender {
             if (response.getCode().isError()) {
                 exchange.respond(fromLwM2mCode(response.getCode()), response.getErrorMessage());
             } else {
-                exchange.respond(fromLwM2mCode(response.getCode()), LinkObject.serialize(response.getObjectLinks()),
+                exchange.respond(fromLwM2mCode(response.getCode()), Link.serialize(response.getObjectLinks()),
                         MediaTypeRegistry.APPLICATION_LINK_FORMAT);
             }
         } else {

@@ -20,6 +20,10 @@ import java.util.Map;
 
 import org.eclipse.leshan.core.node.LwM2mPath;
 import org.eclipse.leshan.core.observation.Observation;
+<<<<<<< HEAD
+=======
+import org.eclipse.leshan.core.request.exception.InvalidRequestException;
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 import org.eclipse.leshan.core.response.ObserveResponse;
 
 /**
@@ -94,16 +98,19 @@ public class ObserveRequest extends AbstractDownlinkRequest<ObserveResponse> {
      */
     public ObserveRequest(ContentFormat format, int objectId, int objectInstanceId, int resourceId) {
         this(format, new LwM2mPath(objectId, objectInstanceId, resourceId), null);
+<<<<<<< HEAD
+=======
     }
 
     /**
      * Creates a request for observing future changes of a particular LWM2M node (object, object instance or resource).
      * 
      * @param path the path to the LWM2M node to observe
-     * @throw IllegalArgumentException if the path is not valid
+     * @exception InvalidRequestException if the path is not valid.
      */
-    public ObserveRequest(String path) {
-        this(null, new LwM2mPath(path), null);
+    public ObserveRequest(String path) throws InvalidRequestException {
+        this(null, newPath(path), null);
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
     }
 
     /**
@@ -111,8 +118,27 @@ public class ObserveRequest extends AbstractDownlinkRequest<ObserveResponse> {
      * 
      * @param format the desired format for the response
      * @param path the path to the LWM2M node to observe
-     * @throw IllegalArgumentException if the path is not valid
+     * @exception InvalidRequestException if the path is not valid.
      */
+<<<<<<< HEAD
+    public ObserveRequest(String path) {
+        this(null, new LwM2mPath(path), null);
+=======
+    public ObserveRequest(ContentFormat format, String path) throws InvalidRequestException {
+        this(format, newPath(path), null);
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
+    }
+
+    /**
+     * Creates a request for observing future changes of a particular LWM2M node (object, object instance or resource).
+     * 
+     * @param format the desired format for the response
+     * @param path the path to the LWM2M node to observe
+     * @param context additional information about the request. This context will be available via the
+     *        {@link Observation} once established.
+     * @exception InvalidRequestException if the path is not valid.
+     */
+<<<<<<< HEAD
     public ObserveRequest(ContentFormat format, String path) {
         this(format, new LwM2mPath(path), null);
     }
@@ -128,6 +154,11 @@ public class ObserveRequest extends AbstractDownlinkRequest<ObserveResponse> {
      */
     public ObserveRequest(ContentFormat format, String path, Map<String, String> context) {
         this(format, new LwM2mPath(path), context);
+=======
+    public ObserveRequest(ContentFormat format, String path, Map<String, String> context)
+            throws InvalidRequestException {
+        this(format, newPath(path), context);
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
     }
 
     private ObserveRequest(ContentFormat format, LwM2mPath target, Map<String, String> context) {
@@ -139,7 +170,7 @@ public class ObserveRequest extends AbstractDownlinkRequest<ObserveResponse> {
     /**
      * @return the desired format of the resource to read
      */
-    public ContentFormat getFormat() {
+    public ContentFormat getContentFormat() {
         return format;
     }
 

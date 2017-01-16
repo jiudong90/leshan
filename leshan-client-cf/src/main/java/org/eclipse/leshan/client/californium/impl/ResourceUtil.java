@@ -16,34 +16,19 @@
  *******************************************************************************/
 package org.eclipse.leshan.client.californium.impl;
 
-import java.net.InetSocketAddress;
-import java.security.Principal;
-import java.security.PublicKey;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.security.auth.x500.X500Principal;
-
-import org.eclipse.californium.core.coap.CoAP.ResponseCode;
 import org.eclipse.californium.core.server.resources.CoapExchange;
-import org.eclipse.californium.scandium.auth.PreSharedKeyIdentity;
-import org.eclipse.californium.scandium.auth.RawPublicKeyIdentity;
 import org.eclipse.leshan.client.request.ServerIdentity;
 import org.eclipse.leshan.client.servers.BootstrapHandler;
+import org.eclipse.leshan.core.californium.ExchangeUtil;
 import org.eclipse.leshan.core.request.Identity;
-import org.eclipse.leshan.util.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ResourceUtil {
-    private static final Logger LOG = LoggerFactory.getLogger(ResourceUtil.class);
-
     // TODO: validate addresses using the security object instances?
     // in case of multiple bootstrap instances of the security object,
     // using BootstrapHandler may be not the right choice, because it
     // handles the current bootstrap server.
     public static ServerIdentity extractServerIdentity(CoapExchange exchange, BootstrapHandler bootstrapHandler) {
-        Identity identity = extractIdentity(exchange);
+        Identity identity = ExchangeUtil.extractIdentity(exchange);
 
         if (bootstrapHandler.isBootstrapServer(identity)) {
             return ServerIdentity.createLwm2mBootstrapServerIdentity(identity);
@@ -51,6 +36,7 @@ public class ResourceUtil {
 
         return ServerIdentity.createLwm2mServerIdentity(identity);
     }
+<<<<<<< HEAD
 
     // TODO leshan-core-cf: this code should be factorized in a leshan-core-cf project.
     // duplicated from org.eclipse.leshan.server.californium.impl.RegisterResource
@@ -111,4 +97,6 @@ public class ResourceUtil {
         }
     }
 
+=======
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 }

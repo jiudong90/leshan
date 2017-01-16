@@ -40,7 +40,10 @@ public interface LwM2mModelProvider {
      * @return the list of object descriptions
      */
     LwM2mModel getObjectModel(Registration registration);
+<<<<<<< HEAD
 
     void reloadModel();
+=======
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 
 }

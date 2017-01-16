@@ -19,7 +19,11 @@ import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.Date;
 
+<<<<<<< HEAD
 import org.eclipse.leshan.LinkObject;
+=======
+import org.eclipse.leshan.Link;
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 import org.eclipse.leshan.core.request.BindingMode;
 import org.eclipse.leshan.util.Validate;
 
@@ -36,10 +40,17 @@ public class RegistrationUpdate {
     private final Long lifeTimeInSec;
     private final String smsNumber;
     private final BindingMode bindingMode;
+<<<<<<< HEAD
     private final LinkObject[] objectLinks;
 
     public RegistrationUpdate(String registrationId, InetAddress address, Integer port, Long lifeTimeInSec, String smsNumber,
             BindingMode bindingMode, LinkObject[] objectLinks) {
+=======
+    private final Link[] objectLinks;
+
+    public RegistrationUpdate(String registrationId, InetAddress address, Integer port, Long lifeTimeInSec, String smsNumber,
+            BindingMode bindingMode, Link[] objectLinks) {
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
         Validate.notNull(registrationId);
         Validate.notNull(address);
         Validate.notNull(port);
@@ -62,7 +73,11 @@ public class RegistrationUpdate {
     public Registration update(Registration registration) {
         InetAddress address = this.address != null ? this.address : registration.getAddress();
         int port = this.port != null ? this.port : registration.getPort();
+<<<<<<< HEAD
         LinkObject[] linkObject = this.objectLinks != null ? this.objectLinks : registration.getObjectLinks();
+=======
+        Link[] linkObject = this.objectLinks != null ? this.objectLinks : registration.getObjectLinks();
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
         long lifeTimeInSec = this.lifeTimeInSec != null ? this.lifeTimeInSec : registration.getLifeTimeInSec();
         BindingMode bindingMode = this.bindingMode != null ? this.bindingMode : registration.getBindingMode();
         String smsNumber = this.smsNumber != null ? this.smsNumber : registration.getSmsNumber();
@@ -107,7 +122,11 @@ public class RegistrationUpdate {
         return bindingMode;
     }
 
+<<<<<<< HEAD
     public LinkObject[] getObjectLinks() {
+=======
+    public Link[] getObjectLinks() {
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
         return objectLinks;
     }
 

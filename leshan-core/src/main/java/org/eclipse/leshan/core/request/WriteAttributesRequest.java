@@ -17,38 +17,40 @@ package org.eclipse.leshan.core.request;
 
 import org.eclipse.leshan.ObserveSpec;
 import org.eclipse.leshan.core.node.LwM2mPath;
+import org.eclipse.leshan.core.request.exception.InvalidRequestException;
 import org.eclipse.leshan.core.response.WriteAttributesResponse;
-import org.eclipse.leshan.util.Validate;
 
 public class WriteAttributesRequest extends AbstractDownlinkRequest<WriteAttributesResponse> {
 
     private final ObserveSpec observeSpec;
 
-    public WriteAttributesRequest(final int objectId, final ObserveSpec observeSpec) {
+    public WriteAttributesRequest(int objectId, ObserveSpec observeSpec) throws InvalidRequestException {
         this(new LwM2mPath(objectId), observeSpec);
     }
 
-    public WriteAttributesRequest(final int objectId, final int objectInstanceId, final ObserveSpec observeSpec) {
+    public WriteAttributesRequest(int objectId, int objectInstanceId, ObserveSpec observeSpec)
+            throws InvalidRequestException {
         this(new LwM2mPath(objectId, objectInstanceId), observeSpec);
     }
 
-    public WriteAttributesRequest(final int objectId, final int objectInstanceId, final int resourceId,
-            final ObserveSpec observeSpec) {
+    public WriteAttributesRequest(int objectId, int objectInstanceId, int resourceId, ObserveSpec observeSpec)
+            throws InvalidRequestException {
         this(new LwM2mPath(objectId, objectInstanceId, resourceId), observeSpec);
     }
 
-    public WriteAttributesRequest(final String path, final ObserveSpec observeSpec) {
-        this(new LwM2mPath(path), observeSpec);
+    public WriteAttributesRequest(String path, ObserveSpec observeSpec) throws InvalidRequestException {
+        this(newPath(path), observeSpec);
     }
 
-    private WriteAttributesRequest(final LwM2mPath path, final ObserveSpec observeSpec) {
+    private WriteAttributesRequest(LwM2mPath path, ObserveSpec observeSpec) throws InvalidRequestException {
         super(path);
-        Validate.notNull(observeSpec);
+        if (observeSpec == null)
+            throw new InvalidRequestException("attributes are mandatory");
         this.observeSpec = observeSpec;
     }
 
     @Override
-    public void accept(final DownlinkRequestVisitor visitor) {
+    public void accept(DownlinkRequestVisitor visitor) {
         visitor.visit(this);
     }
 

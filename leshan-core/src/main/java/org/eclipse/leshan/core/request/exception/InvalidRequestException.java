@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013-2015 Sierra Wireless and others.
+ * Copyright (c) 2017 Sierra Wireless and others.
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -13,24 +13,27 @@
  * Contributors:
  *     Sierra Wireless - initial API and implementation
  *******************************************************************************/
-package org.eclipse.leshan.server.observation;
+package org.eclipse.leshan.core.request.exception;
 
-import org.eclipse.leshan.core.observation.Observation;
-import org.eclipse.leshan.core.response.ObserveResponse;
+/**
+ * Thrown to indicate that the application has attempted to create a request with invalid parameters.
+ */
+public class InvalidRequestException extends RuntimeException {
 
-public interface ObservationListener {
+    private static final long serialVersionUID = 1L;
 
-    void newObservation(Observation observation);
+    public InvalidRequestException() {
+    }
 
-    void cancelled(Observation observation);
+    public InvalidRequestException(String m) {
+        super(m);
+    }
+    
+    public InvalidRequestException(String m, Throwable e) {
+        super(m, e);
+    }
 
-    /**
-     * Called on new notification.
-     * 
-     * @param observation the observation for which new data are received
-     * @param reponse the lwm2m response received
-     */
-    void newValue(Observation observation, ObserveResponse response);
-
-    void newValue(Observation observation, byte[] payload);
+    public InvalidRequestException(Throwable e) {
+        super(e);
+    }
 }

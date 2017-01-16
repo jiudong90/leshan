@@ -22,7 +22,11 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.*;
 
 import org.eclipse.californium.core.coap.Response;
+<<<<<<< HEAD
 import org.eclipse.leshan.LinkObject;
+=======
+import org.eclipse.leshan.Link;
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 import org.eclipse.leshan.core.request.DiscoverRequest;
 import org.eclipse.leshan.core.response.DiscoverResponse;
 import org.junit.After;
@@ -59,8 +63,8 @@ public class DiscoverTest {
         assertNotNull(response.getCoapResponse());
         assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
 
-        LinkObject[] payload = response.getObjectLinks();
-        assertArrayEquals(LinkObject.parse("</2>, </2/0/0>, </2/0/1>, </2/0/2>, </2/0/3>".getBytes()), payload);
+        Link[] payload = response.getObjectLinks();
+        assertArrayEquals(Link.parse("</2>, </2/0/0>, </2/0/1>, </2/0/2>, </2/0/3>".getBytes()), payload);
     }
 
     @Test
@@ -84,8 +88,8 @@ public class DiscoverTest {
         assertNotNull(response.getCoapResponse());
         assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
 
-        LinkObject[] payload = response.getObjectLinks();
-        assertArrayEquals(LinkObject.parse("</3/0>".getBytes()), payload);
+        Link[] payload = response.getObjectLinks();
+        assertArrayEquals(Link.parse("</3/0>".getBytes()), payload);
     }
 
     @Test
@@ -109,8 +113,8 @@ public class DiscoverTest {
         assertNotNull(response.getCoapResponse());
         assertThat(response.getCoapResponse(), is(instanceOf(Response.class)));
 
-        LinkObject[] payload = response.getObjectLinks();
-        assertArrayEquals(LinkObject.parse("</3/0/0>".getBytes()), payload);
+        Link[] payload = response.getObjectLinks();
+        assertArrayEquals(Link.parse("</3/0/0>".getBytes()), payload);
     }
 
     @Test
