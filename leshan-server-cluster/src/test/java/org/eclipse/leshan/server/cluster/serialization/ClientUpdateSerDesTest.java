@@ -37,7 +37,6 @@ public class ClientUpdateSerDesTest {
         objs[0] = new Link("/0/1024/2", att);
         objs[1] = new Link("/0/2");
 
-
         RegistrationUpdate ru = new RegistrationUpdate("myId", Inet4Address.getByName("127.0.0.1"), 5683, 60000l, null,
                 BindingMode.U, objs);
 

@@ -116,7 +116,6 @@ public class ObserveRequest extends AbstractDownlinkRequest<ObserveResponse> {
      */
     public ObserveRequest(ContentFormat format, String path) throws InvalidRequestException {
         this(format, newPath(path), null);
-
     }
 
     /**

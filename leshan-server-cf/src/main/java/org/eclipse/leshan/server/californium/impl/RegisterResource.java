@@ -243,7 +243,6 @@ public class RegisterResource extends CoapResource {
         exchange.respond(fromLwM2mCode(deregisterResponse.getCode()), deregisterResponse.getErrorMessage());
     }
 
-
     // Since the V1_0-20150615-D version of specification, the registration update should be a CoAP POST.
     // To keep compatibility with older version, we still accept CoAP PUT.
     // TODO remove this backward compatibility when the version 1.0.0 of the spec will be released.

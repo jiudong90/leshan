@@ -28,7 +28,7 @@ public interface ObservationListener {
      * Called on new notification.
      * 
      * @param observation the observation for which new data are received
-     * @param reponse the lwm2m response received
+     * @param response the lwm2m response received
      */
     void newValue(Observation observation, ObserveResponse response);
 

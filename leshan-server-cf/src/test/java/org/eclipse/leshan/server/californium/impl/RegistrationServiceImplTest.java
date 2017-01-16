@@ -36,7 +36,6 @@ public class RegistrationServiceImplTest {
     Long lifetime = 10000L;
     String sms = "0171-32423545";
     BindingMode binding = BindingMode.UQS;
-
     Link[] objectLinks = Link.parse("</3>".getBytes(org.eclipse.leshan.util.Charsets.UTF_8));
     String registrationId = "4711";
     Registration registration;

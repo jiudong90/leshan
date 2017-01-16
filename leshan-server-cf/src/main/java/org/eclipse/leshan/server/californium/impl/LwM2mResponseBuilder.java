@@ -341,6 +341,7 @@ public class LwM2mResponseBuilder<T extends LwM2mResponse> implements DownlinkRe
     /**
      * Throws a generic {@link ResourceAccessException} indicating that the client returned an unexpected response code.
      *
+     * @param clientEndpoint
      * @param coapRequest
      * @param coapResponse
      */

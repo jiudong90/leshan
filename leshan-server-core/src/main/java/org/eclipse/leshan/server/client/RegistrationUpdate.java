@@ -36,7 +36,6 @@ public class RegistrationUpdate {
     private final Long lifeTimeInSec;
     private final String smsNumber;
     private final BindingMode bindingMode;
-
     private final Link[] objectLinks;
 
     public RegistrationUpdate(String registrationId, InetAddress address, Integer port, Long lifeTimeInSec, String smsNumber,
@@ -63,9 +62,7 @@ public class RegistrationUpdate {
     public Registration update(Registration registration) {
         InetAddress address = this.address != null ? this.address : registration.getAddress();
         int port = this.port != null ? this.port : registration.getPort();
-
         Link[] linkObject = this.objectLinks != null ? this.objectLinks : registration.getObjectLinks();
-
         long lifeTimeInSec = this.lifeTimeInSec != null ? this.lifeTimeInSec : registration.getLifeTimeInSec();
         BindingMode bindingMode = this.bindingMode != null ? this.bindingMode : registration.getBindingMode();
         String smsNumber = this.smsNumber != null ? this.smsNumber : registration.getSmsNumber();

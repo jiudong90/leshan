@@ -82,4 +82,5 @@ public abstract class AbstractDownlinkRequest<T extends LwM2mResponse> implement
             throw new InvalidRequestException();
         }
     }
+
 }
