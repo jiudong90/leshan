@@ -89,7 +89,6 @@ public class CaliforniumLwM2mRequestSender implements LwM2mRequestSender {
                 destination.getId(), destination.getEndpoint(), model, encoder);
         request.accept(coapRequestBuilder);
         final Request coapRequest = coapRequestBuilder.getRequest();
-//        System.out.println("======>" + coapRequest.toString());
 
         // Send CoAP request synchronously
         final SyncRequestObserver<T> syncMessageObserver = new SyncRequestObserver<T>(coapRequest, timeout) {

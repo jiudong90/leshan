@@ -45,31 +45,12 @@ public class RegistrationHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(RegistrationHandler.class);
 
-<<<<<<< HEAD
     private RegistrationServiceImpl registrationService;
     private Authorizer authorizer;
 
     public RegistrationHandler(RegistrationServiceImpl registrationService, Authorizer authorizer) {
         this.registrationService = registrationService;
         this.authorizer = authorizer;
-=======
-    private SecurityStore securityStore;
-    private ClientRegistry clientRegistry;
-    //zyj add begin
-    private Map<String, String> rulebyObjectid;
-    private int maxClients;
-
-    public RegistrationHandler(ClientRegistry clientRegistry, SecurityStore securityStore, Map<String, String> rulebyObjectid) {
-        this.clientRegistry = clientRegistry;
-        this.securityStore = securityStore;
-        this.rulebyObjectid = rulebyObjectid;
-        this.maxClients = 1000;//default 1000
-    }
-    //zyj add end
-    public RegistrationHandler(ClientRegistry clientRegistry, SecurityStore securityStore) {
-        this.clientRegistry = clientRegistry;
-        this.securityStore = securityStore;
->>>>>>> 6010b9d8a266a3552c4602d1369a6e679e423926
     }
 
     public RegisterResponse register(Identity sender, RegisterRequest registerRequest, InetSocketAddress serverEndpoint) {
@@ -78,29 +59,7 @@ public class RegistrationHandler {
             return RegisterResponse.badRequest(null);
         }
 
-<<<<<<< HEAD
         Registration.Builder builder = new Registration.Builder(RegistrationHandler.createRegistrationId(),
-=======
-        //zyj add begin
-        //If the client is reach the max number, refuse the new client to register
-        int num = clientRegistry.numberOfRegistClient();
-        LOG.info("registered client number:{}", num);
-        if(num >= this.maxClients){
-            LOG.info("reach ve max number, refuse client: {} to register", registerRequest.getEndpointName());
-            return RegisterResponse.forbidden(null);
-        }
-        //zyj add end
-        // We must check if the client is using the right identity.
-        if (!isAuthorized(registerRequest.getEndpointName(), sender)) {
-            return RegisterResponse.forbidden(null);
-        }
-        //zyj add begin
-        if (!isAlinketAuthorized(registerRequest.getObjectLinks(),registerRequest.getEndpointName())) {
-            return RegisterResponse.forbidden(null);
-        }
-        //zyj add end
-        Client.Builder builder = new Client.Builder(RegistrationHandler.createRegistrationId(),
->>>>>>> 6010b9d8a266a3552c4602d1369a6e679e423926
                 registerRequest.getEndpointName(), sender.getPeerAddress().getAddress(), sender.getPeerAddress()
                         .getPort(), serverEndpoint);
 
@@ -179,47 +138,31 @@ public class RegistrationHandler {
     private static String createRegistrationId() {
         return RandomStringUtils.random(10, true, true);
     }
-<<<<<<< HEAD
-=======
 
-    /**
-     * Return true if the client with the given lightweight M2M endPoint is authorized to communicate with the given
-     * security parameters.
-     * 
-     * @param lwM2mEndPointName the lightweight M2M endPoint name
-     * @param clientIdentity the identity at TLS level
-     * @return true if device get authorization
-     */
-    private boolean isAuthorized(String lwM2mEndPointName, Identity clientIdentity) {
-        // do we have security information for this client?
-        SecurityInfo expectedSecurityInfo = securityStore.getByEndpoint(lwM2mEndPointName);
-        return SecurityCheck.checkSecurityInfo(lwM2mEndPointName, clientIdentity, expectedSecurityInfo);
-    }
-//zyj add begin
+    //zyj add begin
     private boolean isAlinketAuthorized(LinkObject[] objectLinks, String lwM2mEndPointName) {
         boolean findandmatch = false;
-        for (LinkObject link : objectLinks) {
-            if (link == null) {
-                continue;
-            }
-            for (String key : rulebyObjectid.keySet()) {
-                if (link.toString().contains(key)) {
-                    if (lwM2mEndPointName.matches(rulebyObjectid.get(key))) {
-                        LOG.info("client:{} objectid:{} matches the pattern", lwM2mEndPointName, key);
-                        findandmatch = true;
-                    } else
-                        LOG.info("client:{} objectid:{} not matches the pattern", lwM2mEndPointName, key);
-                }
-            }
-        }
+//        for (LinkObject link : objectLinks) {
+//            if (link == null) {
+//                continue;
+//            }
+//            for (String key : rulebyObjectid.keySet()) {
+//                if (link.toString().contains(key)) {
+//                    if (lwM2mEndPointName.matches(rulebyObjectid.get(key))) {
+//                        LOG.info("client:{} objectid:{} matches the pattern", lwM2mEndPointName, key);
+//                        findandmatch = true;
+//                    } else
+//                        LOG.info("client:{} objectid:{} not matches the pattern", lwM2mEndPointName, key);
+//                }
+//            }
+//        }
         LOG.info("isAlinketAuthorized return:{} client:{} ", findandmatch, lwM2mEndPointName);
         return findandmatch;
     }
 
     public void setAlinketRule(Map<String, String> rulebyObjectid, int maxclients) {
-        this.rulebyObjectid = rulebyObjectid;
-        this.maxClients = maxclients;
+//        this.rulebyObjectid = rulebyObjectid;
+//        this.maxClients = maxclients;
     }
 //zyj add end
->>>>>>> 6010b9d8a266a3552c4602d1369a6e679e423926
 }

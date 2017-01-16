@@ -351,23 +351,13 @@ public class LwM2mResponseBuilder<T extends LwM2mResponse> implements DownlinkRe
     private LwM2mNode decodeCoapResponse(final LwM2mPath path, final Response coapResponse) {
         LwM2mNode content;
         try {
-<<<<<<< HEAD
-            // get content format
-            ContentFormat contentFormat = null;
-            if (coapResponse.getOptions().hasContentFormat()) {
-                contentFormat = ContentFormat.fromCode(coapResponse.getOptions().getContentFormat());
-            }
 
-            // decode payload
-            content = decoder.decode(coapResponse.getPayload(), contentFormat, path, model);
-=======
             content = decoder.decode(coapResponse.getPayload(),
                     ContentFormat.fromCode(coapResponse.getOptions().getContentFormat()), path, model);
             //for ALX830A device client only support text
 //            LOG.debug("content format: {}", ContentFormat.fromCode(coapResponse.getOptions().getContentFormat()));
 //            LOG.debug("coap content format: {}",coapResponse.getOptions().getContentFormat());
 //            content = decoder.decode(coapResponse.getPayload(), ContentFormat.TEXT, path, model);
->>>>>>> 6010b9d8a266a3552c4602d1369a6e679e423926
         } catch (final InvalidValueException e) {
             final String msg = String.format("[%s] (%s:%s)", e.getMessage(), e.getPath().toString(),
                     coapResponse.getCode().toString());

@@ -52,21 +52,7 @@ public class DefaultLwM2mNodeDecoder implements LwM2mNodeDecoder {
             Class<T> nodeClass) throws InvalidValueException {
         LOG.debug("Decoding value for path {} and format code {}: {}", path, format.getCode(), content);
         Validate.notNull(path);
-<<<<<<< HEAD
         Validate.notNull(format);
-=======
-
-        if(format.getCode() != ContentFormat.JSON_CODE &&
-                format.getCode() != ContentFormat.TLV_CODE &&
-                format.getCode() != ContentFormat.OPAQUE_CODE)
-        format = null;
-
-        // If no format is given, guess the best one to use.
-        if (format == null) {
-            format = guessContentType(path, model);
-        }
-        LOG.debug("decode by format {}", format.getName());
->>>>>>> 6010b9d8a266a3552c4602d1369a6e679e423926
 
         // Decode content.
         switch (format.getCode()) {
@@ -91,14 +77,7 @@ public class DefaultLwM2mNodeDecoder implements LwM2mNodeDecoder {
             LwM2mModel model) throws InvalidValueException {
         LOG.debug("Decoding value for path {} and timestamp format code {}: {}", path, format.getCode(), content);
         Validate.notNull(path);
-<<<<<<< HEAD
         Validate.notNull(format);
-=======
-        // If no format is given, guess the best one to use.
-        if (format == null) {
-            format = guessContentType(path, model);
-        }
->>>>>>> 6010b9d8a266a3552c4602d1369a6e679e423926
 
         // Decode content.
         switch (format.getCode()) {

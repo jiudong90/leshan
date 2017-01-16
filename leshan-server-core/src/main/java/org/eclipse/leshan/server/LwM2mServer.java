@@ -27,7 +27,6 @@ import org.eclipse.leshan.server.response.ResponseListener;
 import org.eclipse.leshan.server.security.SecurityStore;
 
 import java.util.Map;//zyj add
-
 /**
  * An OMA Lightweight M2M device management server.
  *

@@ -85,6 +85,11 @@ public class RedisRequestResponseHandler {
             }
 
             @Override
+            public void newValue(Observation observation, byte[] payload) {
+
+            }
+
+            @Override
             public void newObservation(Observation observation) {
             }
 

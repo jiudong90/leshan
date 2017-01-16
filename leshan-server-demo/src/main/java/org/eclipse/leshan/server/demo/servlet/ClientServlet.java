@@ -139,12 +139,8 @@ public class ClientServlet extends HttpServlet {
 
                 // create & process request
                 ReadRequest request = new ReadRequest(contentFormat, target);
-<<<<<<< HEAD
-                ReadResponse cResponse = server.send(registration, request, TIMEOUT);
-=======
                 LOG.debug("request content format {}", request.toString());
-                ReadResponse cResponse = server.send(client, request, TIMEOUT);
->>>>>>> 6010b9d8a266a3552c4602d1369a6e679e423926
+                ReadResponse cResponse = server.send(registration, request, TIMEOUT);
                 processDeviceResponse(req, resp, cResponse);
             } else {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
