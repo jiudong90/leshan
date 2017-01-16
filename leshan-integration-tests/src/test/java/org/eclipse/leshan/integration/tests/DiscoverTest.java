@@ -22,11 +22,7 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.*;
 
 import org.eclipse.californium.core.coap.Response;
-<<<<<<< HEAD
-import org.eclipse.leshan.LinkObject;
-=======
 import org.eclipse.leshan.Link;
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 import org.eclipse.leshan.core.request.DiscoverRequest;
 import org.eclipse.leshan.core.response.DiscoverResponse;
 import org.junit.After;

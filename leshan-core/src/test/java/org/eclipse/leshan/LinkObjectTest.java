@@ -122,15 +122,9 @@ public class LinkObjectTest {
         attributesObj2.put("number3", 3);
         Link obj2 = new Link("/2", attributesObj2);
 
-<<<<<<< HEAD
-        LinkObject[] input = new LinkObject[] { obj1, obj2 };
-        String strObjs = LinkObject.serialize(input);
-        LinkObject[] output = LinkObject.parse(strObjs.getBytes());
-=======
         Link[] input = new Link[] { obj1, obj2 };
         String strObjs = Link.serialize(input);
         Link[] output = Link.parse(strObjs.getBytes());
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 
         Assert.assertArrayEquals(input, output);
 

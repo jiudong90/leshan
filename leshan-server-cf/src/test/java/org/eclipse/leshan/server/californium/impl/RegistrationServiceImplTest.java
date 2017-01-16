@@ -18,11 +18,7 @@ package org.eclipse.leshan.server.californium.impl;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-<<<<<<< HEAD
-import org.eclipse.leshan.LinkObject;
-=======
 import org.eclipse.leshan.Link;
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 import org.eclipse.leshan.core.request.BindingMode;
 import org.eclipse.leshan.server.client.Registration;
 import org.eclipse.leshan.server.client.RegistrationUpdate;
@@ -40,11 +36,8 @@ public class RegistrationServiceImplTest {
     Long lifetime = 10000L;
     String sms = "0171-32423545";
     BindingMode binding = BindingMode.UQS;
-<<<<<<< HEAD
-    LinkObject[] objectLinks = LinkObject.parse("</3>".getBytes(org.eclipse.leshan.util.Charsets.UTF_8));
-=======
+
     Link[] objectLinks = Link.parse("</3>".getBytes(org.eclipse.leshan.util.Charsets.UTF_8));
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
     String registrationId = "4711";
     Registration registration;
 

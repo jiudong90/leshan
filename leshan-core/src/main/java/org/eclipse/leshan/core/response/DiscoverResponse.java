@@ -25,19 +25,11 @@ public class DiscoverResponse extends AbstractLwM2mResponse {
 
     private final Link[] links;
 
-<<<<<<< HEAD
-    public DiscoverResponse(ResponseCode code, LinkObject[] links, String errorMessage) {
-        this(code, links, errorMessage, null);
-    }
-
-    public DiscoverResponse(ResponseCode code, LinkObject[] links, String errorMessage, Object coapResponse) {
-=======
     public DiscoverResponse(ResponseCode code, Link[] links, String errorMessage) {
         this(code, links, errorMessage, null);
     }
 
     public DiscoverResponse(ResponseCode code, Link[] links, String errorMessage, Object coapResponse) {
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
         super(code, errorMessage, coapResponse);
         if (ResponseCode.CONTENT.equals(code)) {
             Validate.notNull(links);

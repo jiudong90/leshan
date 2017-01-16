@@ -139,10 +139,7 @@ public class ClientServlet extends HttpServlet {
 
                 // create & process request
                 ReadRequest request = new ReadRequest(contentFormat, target);
-<<<<<<< HEAD
                 LOG.debug("request content format {}", request.toString());
-=======
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
                 ReadResponse cResponse = server.send(registration, request, TIMEOUT);
                 processDeviceResponse(req, resp, cResponse);
             } else {

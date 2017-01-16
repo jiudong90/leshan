@@ -51,11 +51,7 @@ public class RegistrationSerDes {
         o.add("regId", r.getId());
 
         JsonArray links = new JsonArray();
-<<<<<<< HEAD:leshan-server-cluster/src/main/java/org/eclipse/leshan/server/cluster/serialization/RegistrationSerDes.java
-        for (LinkObject l : r.getObjectLinks()) {
-=======
         for (Link l : r.getObjectLinks()) {
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897:leshan-server-cluster/src/main/java/org/eclipse/leshan/server/cluster/serialization/RegistrationSerDes.java
             JsonObject ol = Json.object();
             ol.add("url", l.getUrl());
             JsonObject at = Json.object();
@@ -103,11 +99,7 @@ public class RegistrationSerDes {
         }
 
         JsonArray links = (JsonArray) jObj.get("objLink");
-<<<<<<< HEAD:leshan-server-cluster/src/main/java/org/eclipse/leshan/server/cluster/serialization/RegistrationSerDes.java
-        LinkObject[] linkObjs = new LinkObject[links.size()];
-=======
         Link[] linkObjs = new Link[links.size()];
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897:leshan-server-cluster/src/main/java/org/eclipse/leshan/server/cluster/serialization/RegistrationSerDes.java
         for (int i = 0; i < links.size(); i++) {
             JsonObject ol = (JsonObject) links.get(i);
 

@@ -38,11 +38,7 @@ public class ClientSortObjectTest {
 
         Registration r = builder.build();
 
-<<<<<<< HEAD
-        LinkObject[] res = r.getSortedObjectLinks();
-=======
         Link[] res = r.getSortedObjectLinks();
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
         Assert.assertEquals(3, res.length);
         Assert.assertNull(res[0]);
         Assert.assertEquals("/0/2", res[1].getUrl());

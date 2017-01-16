@@ -23,11 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-<<<<<<< HEAD:leshan-server-cluster/src/test/java/org/eclipse/leshan/server/cluster/serialization/ClientSerDesTest.java
-import org.eclipse.leshan.LinkObject;
-=======
 import org.eclipse.leshan.Link;
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897:leshan-server-cluster/src/test/java/org/eclipse/leshan/server/cluster/serialization/ClientSerDesTest.java
 import org.eclipse.leshan.server.client.Registration;
 import org.eclipse.leshan.server.cluster.serialization.RegistrationSerDes;
 import org.junit.Test;

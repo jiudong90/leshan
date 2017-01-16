@@ -27,10 +27,7 @@ import org.eclipse.leshan.core.node.LwM2mPath;
 import org.eclipse.leshan.core.node.LwM2mResource;
 import org.eclipse.leshan.core.node.LwM2mSingleResource;
 import org.eclipse.leshan.core.node.ObjectLink;
-<<<<<<< HEAD
-=======
 import org.eclipse.leshan.core.request.exception.InvalidRequestException;
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 import org.eclipse.leshan.core.response.WriteResponse;
 
 /**
@@ -231,29 +228,17 @@ public class WriteRequest extends AbstractDownlinkRequest<WriteResponse> {
     /**
      * Request to write a <b> Objlnk Single-Instance Resource</b> using the TLV content format.
      */
-<<<<<<< HEAD
-    public WriteRequest(final int objectId, final int objectInstanceId, final int resourceId, ObjectLink value) {
-=======
     public WriteRequest(int objectId, int objectInstanceId, int resourceId, ObjectLink value) {
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
         this(ContentFormat.TLV, objectId, objectInstanceId, resourceId, value);
     }
 
     /**
-<<<<<<< HEAD
-     * Request to write a <b> Objlnk Single-Instance Resource</b> using the given content format (OPAQUE, TLV, JSON,
-     * TEXT).
-     */
-    public WriteRequest(final ContentFormat contentFormat, final int objectId, final int objectInstanceId,
-            final int resourceId, ObjectLink value) {
-=======
      * Request to write a <b> Objlnk Single-Instance Resource</b> using the given content format (TLV, JSON, TEXT).
      * 
      * @exception InvalidRequestException if bad @{link ContentFormat} format was used.
      */
     public WriteRequest(ContentFormat contentFormat, int objectId, int objectInstanceId, int resourceId,
             ObjectLink value) throws InvalidRequestException {
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
         this(Mode.REPLACE, contentFormat, new LwM2mPath(objectId, objectInstanceId, resourceId),
                 LwM2mSingleResource.newObjectLinkResource(resourceId, value));
     }

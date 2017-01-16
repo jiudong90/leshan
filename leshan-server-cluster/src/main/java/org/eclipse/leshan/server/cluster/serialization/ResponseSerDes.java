@@ -15,11 +15,7 @@
  *******************************************************************************/
 package org.eclipse.leshan.server.cluster.serialization;
 
-<<<<<<< HEAD
-import org.eclipse.leshan.LinkObject;
-=======
 import org.eclipse.leshan.Link;
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 import org.eclipse.leshan.ResponseCode;
 import org.eclipse.leshan.core.node.LwM2mNode;
 import org.eclipse.leshan.core.request.DeleteRequest;
@@ -104,11 +100,7 @@ public class ResponseSerDes {
             return new DeleteResponse(code, errorMessage);
         case "discover":
             String objectLinks = o.getString("objectLinks", "");
-<<<<<<< HEAD
-            return new DiscoverResponse(code, LinkObject.parse(objectLinks.getBytes()), errorMessage);
-=======
             return new DiscoverResponse(code, Link.parse(objectLinks.getBytes()), errorMessage);
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
         case "create": {
             String location = o.getString("location", null);
             return new CreateResponse(code, location, errorMessage);

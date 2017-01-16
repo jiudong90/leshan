@@ -20,11 +20,7 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
-<<<<<<< HEAD
-import org.eclipse.leshan.LinkObject;
-=======
 import org.eclipse.leshan.Link;
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 import org.eclipse.leshan.core.request.BindingMode;
 import org.eclipse.leshan.server.client.RegistrationUpdate;
 
@@ -55,11 +51,7 @@ public class RegistrationUpdateSerDes {
             o.add("bnd", u.getBindingMode().name());
         if (u.getObjectLinks() != null) {
             JsonArray links = new JsonArray();
-<<<<<<< HEAD
-            for (LinkObject l : u.getObjectLinks()) {
-=======
             for (Link l : u.getObjectLinks()) {
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
                 JsonObject ol = Json.object();
                 ol.add("url", l.getUrl());
                 JsonObject at = Json.object();
@@ -111,15 +103,9 @@ public class RegistrationUpdateSerDes {
 
         // parse object link
         JsonArray links = (JsonArray) v.get("objLink");
-<<<<<<< HEAD
-        LinkObject[] linkObjs = null;
-        if (links != null) {
-            linkObjs = new LinkObject[links.size()];
-=======
         Link[] linkObjs = null;
         if (links != null) {
             linkObjs = new Link[links.size()];
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
             for (int i = 0; i < links.size(); i++) {
                 JsonObject ol = (JsonObject) links.get(i);
 
@@ -133,11 +119,7 @@ public class RegistrationUpdateSerDes {
                         attMap.put(k, jsonValue.asString());
                     }
                 }
-<<<<<<< HEAD
-                LinkObject o = new LinkObject(ol.getString("url", null), attMap);
-=======
                 Link o = new Link(ol.getString("url", null), attMap);
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
                 linkObjs[i] = o;
             }
         }

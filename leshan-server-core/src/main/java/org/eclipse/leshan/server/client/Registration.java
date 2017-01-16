@@ -76,11 +76,7 @@ public class Registration implements Serializable {
     private final Date lastUpdate;
 
     protected Registration(String id, String endpoint, InetAddress address, int port, String lwM2mVersion,
-<<<<<<< HEAD:leshan-server-core/src/main/java/org/eclipse/leshan/server/client/Registration.java
-            Long lifetimeInSec, String smsNumber, BindingMode bindingMode, LinkObject[] objectLinks,
-=======
             Long lifetimeInSec, String smsNumber, BindingMode bindingMode, Link[] objectLinks,
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897:leshan-server-core/src/main/java/org/eclipse/leshan/server/client/Registration.java
             InetSocketAddress registrationEndpointAddress,
 
             Date registrationDate, Date lastUpdate, Map<String, String> additionalRegistrationAttributes) {

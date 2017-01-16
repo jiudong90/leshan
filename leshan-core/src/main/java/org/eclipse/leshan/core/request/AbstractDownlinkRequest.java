@@ -75,8 +75,6 @@ public abstract class AbstractDownlinkRequest<T extends LwM2mResponse> implement
         return true;
     }
 
-<<<<<<< HEAD
-=======
     protected static LwM2mPath newPath(String path) {
         try {
             return new LwM2mPath(path);
@@ -84,6 +82,4 @@ public abstract class AbstractDownlinkRequest<T extends LwM2mResponse> implement
             throw new InvalidRequestException();
         }
     }
-
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 }

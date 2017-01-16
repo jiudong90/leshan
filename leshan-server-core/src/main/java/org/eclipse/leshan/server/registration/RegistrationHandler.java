@@ -19,7 +19,7 @@ import java.net.InetSocketAddress;
 import java.util.Date;
 //zyj add begin
 import java.util.Map;
-import org.eclipse.leshan.LinkObject;
+import org.eclipse.leshan.Link;
 //zyj add end
 import org.eclipse.leshan.core.request.DeregisterRequest;
 import org.eclipse.leshan.core.request.Identity;
@@ -55,13 +55,6 @@ public class RegistrationHandler {
 
     public RegisterResponse register(Identity sender, RegisterRequest registerRequest, InetSocketAddress serverEndpoint) {
 
-<<<<<<< HEAD
-        if (registerRequest.getEndpointName() == null || registerRequest.getEndpointName().isEmpty() || sender == null) {
-            return RegisterResponse.badRequest(null);
-        }
-
-=======
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
         Registration.Builder builder = new Registration.Builder(RegistrationHandler.createRegistrationId(),
                 registerRequest.getEndpointName(), sender.getPeerAddress().getAddress(), sender.getPeerAddress()
                         .getPort(), serverEndpoint);
@@ -72,21 +65,11 @@ public class RegistrationHandler {
                 .additionalRegistrationAttributes(registerRequest.getAdditionalAttributes());
 
         Registration registration = builder.build();
-<<<<<<< HEAD
-
         // We must check if the client is using the right identity.
         if (!authorizer.isAuthorized(registerRequest, registration, sender)) {
             return RegisterResponse.forbidden(null);
         }
 
-=======
-
-        // We must check if the client is using the right identity.
-        if (!authorizer.isAuthorized(registerRequest, registration, sender)) {
-            return RegisterResponse.forbidden(null);
-        }
-
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
         if (registrationService.registerClient(registration)) {
             LOG.debug("New registered client: {}", registration);
             return RegisterResponse.success(registration.getId());
@@ -121,11 +104,8 @@ public class RegistrationHandler {
     public DeregisterResponse deregister(Identity sender, DeregisterRequest deregisterRequest) {
 
         // We must check if the client is using the right identity.
-<<<<<<< HEAD
-        Registration registration = registrationService.getById(deregisterRequest.getRegistrationID());
-=======
         Registration registration = registrationService.getById(deregisterRequest.getRegistrationId());
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
+
         if (registration == null) {
             return DeregisterResponse.notFound();
         }
@@ -135,11 +115,8 @@ public class RegistrationHandler {
             return DeregisterResponse.badRequest("forbidden");
         }
 
-<<<<<<< HEAD
-        Registration unregistered = registrationService.deregisterClient(deregisterRequest.getRegistrationID());
-=======
         Registration unregistered = registrationService.deregisterClient(deregisterRequest.getRegistrationId());
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
+
         if (unregistered != null) {
             return DeregisterResponse.success();
         } else {
@@ -151,10 +128,9 @@ public class RegistrationHandler {
     private static String createRegistrationId() {
         return RandomStringUtils.random(10, true, true);
     }
-<<<<<<< HEAD
 
     //zyj add begin
-    private boolean isAlinketAuthorized(LinkObject[] objectLinks, String lwM2mEndPointName) {
+    private boolean isAlinketAuthorized(Link[] objectLinks, String lwM2mEndPointName) {
         boolean findandmatch = false;
 //        for (LinkObject link : objectLinks) {
 //            if (link == null) {
@@ -179,6 +155,4 @@ public class RegistrationHandler {
 //        this.maxClients = maxclients;
     }
 //zyj add end
-=======
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 }

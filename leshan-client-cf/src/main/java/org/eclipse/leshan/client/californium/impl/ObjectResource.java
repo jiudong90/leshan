@@ -19,12 +19,8 @@
  *******************************************************************************/
 package org.eclipse.leshan.client.californium.impl;
 
-<<<<<<< HEAD
-import static org.eclipse.leshan.client.californium.impl.ResourceUtil.*;
-=======
 import static org.eclipse.leshan.client.californium.impl.ResourceUtil.extractServerIdentity;
 import static org.eclipse.leshan.core.californium.ResponseCodeUtil.fromLwM2mCode;
->>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
 
 import java.util.List;
 
