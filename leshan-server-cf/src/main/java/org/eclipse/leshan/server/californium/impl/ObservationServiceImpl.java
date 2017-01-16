@@ -50,7 +50,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of the {@link ObservationService} accessing the persisted observation via the provided
+<<<<<<< HEAD
  * {@link LwM2mObservationStore}.
+=======
+ * {@link CaliforniumRegistrationStore}.
+>>>>>>> e11bf35657fa8e2abbd90aed2097f9058abd4897
  * 
  * When a new observation is added or changed or canceled, the registered listeners are notified.
  */

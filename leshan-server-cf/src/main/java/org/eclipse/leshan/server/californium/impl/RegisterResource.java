@@ -15,16 +15,13 @@
  *******************************************************************************/
 package org.eclipse.leshan.server.californium.impl;
 
+import static org.eclipse.leshan.core.californium.ExchangeUtil.extractIdentity;
+import static org.eclipse.leshan.core.californium.ResponseCodeUtil.fromLwM2mCode;
+
 import java.net.InetSocketAddress;
-import java.security.Principal;
-import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.security.auth.x500.X500Principal;
 
 import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.coap.CoAP.ResponseCode;
@@ -34,20 +31,18 @@ import org.eclipse.californium.core.coap.Response;
 import org.eclipse.californium.core.network.Exchange;
 import org.eclipse.californium.core.server.resources.CoapExchange;
 import org.eclipse.californium.core.server.resources.Resource;
-import org.eclipse.californium.scandium.auth.PreSharedKeyIdentity;
-import org.eclipse.californium.scandium.auth.RawPublicKeyIdentity;
-import org.eclipse.leshan.LinkObject;
+import org.eclipse.leshan.Link;
 import org.eclipse.leshan.core.request.BindingMode;
 import org.eclipse.leshan.core.request.DeregisterRequest;
 import org.eclipse.leshan.core.request.Identity;
 import org.eclipse.leshan.core.request.RegisterRequest;
 import org.eclipse.leshan.core.request.UpdateRequest;
+import org.eclipse.leshan.core.request.exception.InvalidRequestException;
 import org.eclipse.leshan.core.response.DeregisterResponse;
 import org.eclipse.leshan.core.response.RegisterResponse;
 import org.eclipse.leshan.core.response.UpdateResponse;
 import org.eclipse.leshan.server.client.RegistrationService;
 import org.eclipse.leshan.server.registration.RegistrationHandler;
-import org.eclipse.leshan.util.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,8 +82,17 @@ public class RegisterResource extends CoapResource {
     public void handleRequest(Exchange exchange) {
         try {
             super.handleRequest(exchange);
+        } catch (InvalidRequestException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(String.format("InvalidRequestException while handling request(%s) on the /rd resource",
+                        exchange.getRequest()), e);
+            }
+            Response response = new Response(ResponseCode.BAD_REQUEST);
+            response.setPayload(e.getMessage());
+            exchange.sendResponse(response);
         } catch (Exception e) {
-            LOG.error("Exception while handling a request on the /rd resource", e);
+            LOG.error(String.format("Exception while handling request(%s) on the /rd resource", exchange.getRequest()),
+                    e);
             exchange.sendResponse(new Response(ResponseCode.INTERNAL_SERVER_ERROR));
         }
     }
@@ -150,7 +154,9 @@ public class RegisterResource extends CoapResource {
         String smsNumber = null;
         String lwVersion = null;
         BindingMode binding = null;
-        LinkObject[] objectLinks = null;
+
+        // Get object Links
+        Link[] objectLinks = Link.parse(request.getPayload());
 
         Map<String, String> additionalParams = new HashMap<String, String>();
 
@@ -172,10 +178,6 @@ public class RegisterResource extends CoapResource {
                     additionalParams.put(tokens[0], tokens[1]);
                 }
             }
-        }
-        // Get object Links
-        if (request.getPayload() != null) {
-            objectLinks = LinkObject.parse(request.getPayload());
         }
 
         // Create request
@@ -205,7 +207,7 @@ public class RegisterResource extends CoapResource {
         Long lifetime = null;
         String smsNumber = null;
         BindingMode binding = null;
-        LinkObject[] objectLinks = null;
+        Link[] objectLinks = null;
         for (String param : request.getOptions().getUriQuery()) {
             if (param.startsWith(QUERY_PARAM_LIFETIME)) {
                 lifetime = Long.valueOf(param.substring(3));
@@ -216,7 +218,7 @@ public class RegisterResource extends CoapResource {
             }
         }
         if (request.getPayload() != null && request.getPayload().length > 0) {
-            objectLinks = LinkObject.parse(request.getPayload());
+            objectLinks = Link.parse(request.getPayload());
         }
         UpdateRequest updateRequest = new UpdateRequest(registrationId, lifetime, smsNumber, binding, objectLinks);
 
@@ -241,61 +243,6 @@ public class RegisterResource extends CoapResource {
         exchange.respond(fromLwM2mCode(deregisterResponse.getCode()), deregisterResponse.getErrorMessage());
     }
 
-    // TODO leshan-core-cf: this code should be factorized in a leshan-core-cf project.
-    private Identity extractIdentity(CoapExchange exchange) {
-        InetSocketAddress peerAddress = new InetSocketAddress(exchange.getSourceAddress(), exchange.getSourcePort());
-
-        Principal senderIdentity = exchange.advanced().getRequest().getSenderIdentity();
-        if (senderIdentity != null) {
-            if (senderIdentity instanceof PreSharedKeyIdentity) {
-                return Identity.psk(peerAddress, senderIdentity.getName());
-            } else if (senderIdentity instanceof RawPublicKeyIdentity) {
-                PublicKey publicKey = ((RawPublicKeyIdentity) senderIdentity).getKey();
-                return Identity.rpk(peerAddress, publicKey);
-            } else if (senderIdentity instanceof X500Principal) {
-                // Extract common name
-                Matcher endpointMatcher = Pattern.compile("CN=(.*?)(,|$)").matcher(senderIdentity.getName());
-                if (endpointMatcher.find()) {
-                    String x509CommonName = endpointMatcher.group(1);
-                    return Identity.x509(peerAddress, x509CommonName);
-                } else {
-                    return null;
-                }
-            }
-        }
-        return Identity.unsecure(peerAddress);
-    }
-
-    // TODO leshan-core-cf: this code should be factorized in a leshan-core-cf project.
-    // duplicated from org.eclipse.leshan.client.californium.impl.ObjectResource
-    public static ResponseCode fromLwM2mCode(final org.eclipse.leshan.ResponseCode code) {
-        Validate.notNull(code);
-
-        switch (code) {
-        case CREATED:
-            return ResponseCode.CREATED;
-        case DELETED:
-            return ResponseCode.DELETED;
-        case CHANGED:
-            return ResponseCode.CHANGED;
-        case CONTENT:
-            return ResponseCode.CONTENT;
-        case BAD_REQUEST:
-            return ResponseCode.BAD_REQUEST;
-        case UNAUTHORIZED:
-            return ResponseCode.UNAUTHORIZED;
-        case NOT_FOUND:
-            return ResponseCode.NOT_FOUND;
-        case METHOD_NOT_ALLOWED:
-            return ResponseCode.METHOD_NOT_ALLOWED;
-        case FORBIDDEN:
-            return ResponseCode.FORBIDDEN;
-        case INTERNAL_SERVER_ERROR:
-            return ResponseCode.INTERNAL_SERVER_ERROR;
-        default:
-            throw new IllegalArgumentException("Invalid CoAP code for LWM2M response: " + code);
-        }
-    }
 
     // Since the V1_0-20150615-D version of specification, the registration update should be a CoAP POST.
     // To keep compatibility with older version, we still accept CoAP PUT.

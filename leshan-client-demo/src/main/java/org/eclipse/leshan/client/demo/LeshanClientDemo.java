@@ -223,6 +223,7 @@ public class LeshanClientDemo {
 //        List<LwM2mObjectEnabler> enablers = initializer.create(SECURITY, SERVER, DEVICE, LOCATION);
         List<LwM2mObjectEnabler> enablers = initializer.create(SECURITY, SERVER, 16017);
 
+
         // Create client
         LeshanClientBuilder builder = new LeshanClientBuilder(endpoint);
         builder.setLocalAddress(localAddress, localPort);

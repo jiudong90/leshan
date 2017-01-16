@@ -119,6 +119,8 @@ public class LeshanServer implements LwM2mServer {
      * @param encoder encode used to encode request payload.
      * @param publicKey the server public key used for RPK DTLS authentication.
      * @param privateKey the server private key used to RPK or X509 DTLS authentication.
+     * @param certificateChain the server X509 certificate (will be used for RPK too, in this case no need to set public
+     *        key).
      * @param trustedCertificates the trusted certificates used to authenticate client certificates.
      */
     public LeshanServer(InetSocketAddress localAddress, InetSocketAddress localSecureAddress,
@@ -206,8 +208,7 @@ public class LeshanServer implements LwM2mServer {
         final RegisterResource rdResource = new RegisterResource(regHandler);*/
 
         final RegisterResource rdResource = new RegisterResource(
-               new RegistrationHandler(this.registrationService, authorizer));
-        //zyj add end
+                new RegistrationHandler(this.registrationService, authorizer));
         coapServer.add(rdResource);
 
         // create sender
@@ -318,6 +319,7 @@ public class LeshanServer implements LwM2mServer {
     public void removeResponseListener(ResponseListener listener) {
         requestSender.removeResponseListener(listener);
     }
+
     //zyj add begin
     @Override
     public void setRegRule(Map<String, String> rule, int maxclients) {
@@ -325,6 +327,7 @@ public class LeshanServer implements LwM2mServer {
         //TODO: need implement here
     }
     //zyj add end
+
 
     /**
      * @return the underlying {@link CoapServer}

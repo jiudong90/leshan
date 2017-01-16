@@ -15,11 +15,12 @@
  *******************************************************************************/
 package org.eclipse.leshan.server.californium.impl;
 
-import org.eclipse.californium.core.coap.CoAP;
+import static org.eclipse.leshan.core.californium.ResponseCodeUtil.fromCoapCode;
+
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import org.eclipse.californium.core.coap.Request;
 import org.eclipse.californium.core.coap.Response;
-import org.eclipse.leshan.LinkObject;
+import org.eclipse.leshan.Link;
 import org.eclipse.leshan.ResponseCode;
 import org.eclipse.leshan.core.model.LwM2mModel;
 import org.eclipse.leshan.core.node.LwM2mNode;
@@ -54,7 +55,6 @@ import org.eclipse.leshan.core.response.ReadResponse;
 import org.eclipse.leshan.core.response.WriteAttributesResponse;
 import org.eclipse.leshan.core.response.WriteResponse;
 import org.eclipse.leshan.server.client.Registration;
-import org.eclipse.leshan.util.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,40 +69,6 @@ public class LwM2mResponseBuilder<T extends LwM2mResponse> implements DownlinkRe
     private final Registration registration;
     private final LwM2mModel model;
     private final LwM2mNodeDecoder decoder;
-
-    // TODO leshan-code-cf: this code should be factorize in a leshan-core-cf project.
-    // duplicate from org.eclipse.leshan.client.californium.impl.LwM2mClientResponseBuilder<T>
-    public static ResponseCode fromCoapCode(final int code) {
-        Validate.notNull(code);
-
-        if (code == CoAP.ResponseCode.CREATED.value) {
-            return ResponseCode.CREATED;
-        } else if (code == CoAP.ResponseCode.DELETED.value) {
-            return ResponseCode.DELETED;
-        } else if (code == CoAP.ResponseCode.CHANGED.value) {
-            return ResponseCode.CHANGED;
-        } else if (code == CoAP.ResponseCode.CONTENT.value) {
-            return ResponseCode.CONTENT;
-        } else if (code == CoAP.ResponseCode.BAD_REQUEST.value) {
-            return ResponseCode.BAD_REQUEST;
-        } else if (code == CoAP.ResponseCode.UNAUTHORIZED.value) {
-            return ResponseCode.UNAUTHORIZED;
-        } else if (code == CoAP.ResponseCode.NOT_FOUND.value) {
-            return ResponseCode.NOT_FOUND;
-        } else if (code == CoAP.ResponseCode.METHOD_NOT_ALLOWED.value) {
-            return ResponseCode.METHOD_NOT_ALLOWED;
-        } else if (code == CoAP.ResponseCode.FORBIDDEN.value) {
-            return ResponseCode.FORBIDDEN;
-        } else if (code == CoAP.ResponseCode.UNSUPPORTED_CONTENT_FORMAT.value) {
-            return ResponseCode.UNSUPPORTED_CONTENT_FORMAT;
-        } else if (code == CoAP.ResponseCode.NOT_ACCEPTABLE.value) {
-            return ResponseCode.NOT_ACCEPTABLE;
-        } else if (code == CoAP.ResponseCode.INTERNAL_SERVER_ERROR.value) {
-            return ResponseCode.INTERNAL_SERVER_ERROR;
-        } else {
-            throw new IllegalArgumentException("Invalid CoAP code for LWM2M response: " + code);
-        }
-    }
 
     public LwM2mResponseBuilder(final Request coapRequest, final Response coapResponse, final Registration registration,
             final LwM2mModel model, final ObservationServiceImpl observationService,
@@ -140,14 +106,14 @@ public class LwM2mResponseBuilder<T extends LwM2mResponse> implements DownlinkRe
     public void visit(final DiscoverRequest request) {
         switch (coapResponse.getCode()) {
         case CONTENT:
-            LinkObject[] links = null;
+            Link[] links = null;
             if (MediaTypeRegistry.APPLICATION_LINK_FORMAT != coapResponse.getOptions().getContentFormat()) {
                 LOG.debug("Expected LWM2M Client [{}] to return application/link-format [{}] content but got [{}]",
                         registration.getEndpoint(), MediaTypeRegistry.APPLICATION_LINK_FORMAT,
                         coapResponse.getOptions().getContentFormat());
-                links = new LinkObject[] {}; // empty list
+                links = new Link[] {}; // empty list
             } else {
-                links = LinkObject.parse(coapResponse.getPayload());
+                links = Link.parse(coapResponse.getPayload());
             }
             lwM2mresponse = new DiscoverResponse(ResponseCode.CONTENT, links, null, coapResponse);
             break;
@@ -351,13 +317,14 @@ public class LwM2mResponseBuilder<T extends LwM2mResponse> implements DownlinkRe
     private LwM2mNode decodeCoapResponse(final LwM2mPath path, final Response coapResponse) {
         LwM2mNode content;
         try {
+            // get content format
+            ContentFormat contentFormat = null;
+            if (coapResponse.getOptions().hasContentFormat()) {
+                contentFormat = ContentFormat.fromCode(coapResponse.getOptions().getContentFormat());
+            }
 
-            content = decoder.decode(coapResponse.getPayload(),
-                    ContentFormat.fromCode(coapResponse.getOptions().getContentFormat()), path, model);
-            //for ALX830A device client only support text
-//            LOG.debug("content format: {}", ContentFormat.fromCode(coapResponse.getOptions().getContentFormat()));
-//            LOG.debug("coap content format: {}",coapResponse.getOptions().getContentFormat());
-//            content = decoder.decode(coapResponse.getPayload(), ContentFormat.TEXT, path, model);
+            // decode payload
+            content = decoder.decode(coapResponse.getPayload(), contentFormat, path, model);
         } catch (final InvalidValueException e) {
             final String msg = String.format("[%s] (%s:%s)", e.getMessage(), e.getPath().toString(),
                     coapResponse.getCode().toString());
