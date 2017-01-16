@@ -33,6 +33,8 @@ import org.eclipse.leshan.server.client.RegistrationService;
 import org.eclipse.leshan.server.client.RegistrationUpdate;
 import org.eclipse.leshan.server.impl.RegistrationServiceImpl;
 import org.eclipse.leshan.server.security.Authorizer;
+import org.eclipse.leshan.server.security.SecurityCheck;
+import org.eclipse.leshan.server.security.SecurityInfo;
 import org.eclipse.leshan.util.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,31 +130,4 @@ public class RegistrationHandler {
     private static String createRegistrationId() {
         return RandomStringUtils.random(10, true, true);
     }
-
-    //zyj add begin
-    private boolean isAlinketAuthorized(Link[] objectLinks, String lwM2mEndPointName) {
-        boolean findandmatch = false;
-//        for (LinkObject link : objectLinks) {
-//            if (link == null) {
-//                continue;
-//            }
-//            for (String key : rulebyObjectid.keySet()) {
-//                if (link.toString().contains(key)) {
-//                    if (lwM2mEndPointName.matches(rulebyObjectid.get(key))) {
-//                        LOG.info("client:{} objectid:{} matches the pattern", lwM2mEndPointName, key);
-//                        findandmatch = true;
-//                    } else
-//                        LOG.info("client:{} objectid:{} not matches the pattern", lwM2mEndPointName, key);
-//                }
-//            }
-//        }
-        LOG.info("isAlinketAuthorized return:{} client:{} ", findandmatch, lwM2mEndPointName);
-        return findandmatch;
-    }
-
-    public void setAlinketRule(Map<String, String> rulebyObjectid, int maxclients) {
-//        this.rulebyObjectid = rulebyObjectid;
-//        this.maxClients = maxclients;
-    }
-//zyj add end
 }
