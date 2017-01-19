@@ -128,8 +128,4 @@ public interface LwM2mServer {
      */
     LwM2mModelProvider getModelProvider();
 
-    /**
-     * Set the registration rule, zyj add.
-     */
-    void setRegRule(Map<String, String> policy, int maxclients);
 }
